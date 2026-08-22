@@ -295,7 +295,13 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
 
           {/* 16. Destination Discovery Magazine Showcase */}
           <DestinationDiscovery
-            onSelectDestination={(name) => setSelectedDestinationName(name)}
+            onSelectDestination={(name, journeyId) => {
+              if (journeyId) {
+                onNavigate(`/journey/${journeyId}`);
+              } else {
+                setSelectedDestinationName(name);
+              }
+            }}
           />
 
           {/* Floating Planning AI Assistant */}

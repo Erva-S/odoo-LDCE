@@ -1,13 +1,14 @@
 import { ArrowUpRight } from 'lucide-react';
 
 interface DestinationDiscoveryProps {
-  onSelectDestination?: (name: string) => void;
+  onSelectDestination?: (name: string, journeyId?: string) => void;
 }
 
 const DISCOVERIES = [
   {
     number: '01',
     name: 'GOA',
+    journeyId: '1',
     tags: 'Beaches · Food · Nightlife',
     desc: 'Beyond the crowded shores lies a tranquil world of terracotta rooflines, Portuguese chapels, spice plantations, and unhurried coastal bistros.',
     image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1200&auto=format&fit=crop',
@@ -15,6 +16,7 @@ const DISCOVERIES = [
   {
     number: '02',
     name: 'LADAKH',
+    journeyId: '4',
     tags: 'Mountains · Adventure · Nature',
     desc: 'High-altitude moonscapes, Buddhist gompas perched on granite cliffs, and turquoise glacial lakes suspended under deep cobalt skies.',
     image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1200&auto=format&fit=crop',
@@ -22,6 +24,7 @@ const DISCOVERIES = [
   {
     number: '03',
     name: 'RAJASTHAN',
+    journeyId: '2',
     tags: 'Culture · History · Architecture',
     desc: 'Gilded palace courtyards, hand-painted stepwells, and desert tent retreats where royal history converges with contemporary artistic revivals.',
     image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=1200&auto=format&fit=crop',
@@ -53,7 +56,7 @@ export const DestinationDiscovery = ({ onSelectDestination }: DestinationDiscove
         {DISCOVERIES.map((item) => (
           <div
             key={item.number}
-            onClick={() => onSelectDestination && onSelectDestination(item.name)}
+            onClick={() => onSelectDestination && onSelectDestination(item.name, item.journeyId)}
             className="group grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white border border-[#E7E5E2] hover:border-black rounded-[28px] overflow-hidden p-6 sm:p-8 card-hover-effect cursor-pointer transition-all shadow-xs hover:shadow-lg"
           >
             {/* Left/Top Image */}
@@ -88,7 +91,7 @@ export const DestinationDiscovery = ({ onSelectDestination }: DestinationDiscove
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (onSelectDestination) onSelectDestination(item.name);
+                    if (onSelectDestination) onSelectDestination(item.name, item.journeyId);
                   }}
                   className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
                 >
