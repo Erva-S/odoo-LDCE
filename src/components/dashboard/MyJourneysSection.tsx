@@ -14,6 +14,7 @@ interface JourneyItem {
 
 interface MyJourneysSectionProps {
   additionalJourneys?: JourneyItem[];
+  onSelectJourney?: (id: string) => void;
 }
 
 const JOURNEYS: JourneyItem[] = [
@@ -59,7 +60,7 @@ const JOURNEYS: JourneyItem[] = [
   },
 ];
 
-export const MyJourneysSection = ({ additionalJourneys = [] }: MyJourneysSectionProps) => {
+export const MyJourneysSection = ({ additionalJourneys = [], onSelectJourney }: MyJourneysSectionProps) => {
   const [filter, setFilter] = useState<'All' | 'Upcoming' | 'Planning'>('All');
   const journeys = [...additionalJourneys, ...JOURNEYS];
 
@@ -116,6 +117,7 @@ export const MyJourneysSection = ({ additionalJourneys = [] }: MyJourneysSection
         {filteredJourneys.map((journey) => (
           <div
             key={journey.id}
+            onClick={() => onSelectJourney && onSelectJourney(journey.id)}
             className="group relative bg-white rounded-2xl overflow-hidden border border-[#E7E5E2] card-hover-effect flex flex-col justify-between cursor-pointer"
           >
             {/* Image Container with Editorial Aspect Ratio */}
