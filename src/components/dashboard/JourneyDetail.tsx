@@ -48,7 +48,66 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
   // Load journey data
   useEffect(() => {
     const list = travelStorage.getJourneys();
-    const found = list.find(j => j.id === journeyId);
+    let found = list.find((j) => j.id === journeyId);
+
+    // If journey isn't found in storage, automatically synthesize it from the destination or haven directory
+    if (!found && journeyId) {
+      const cityName = decodeURIComponent(journeyId).replace(/[-_]/g, ' ');
+      const dest = getOrCreateDestination(cityName);
+      const fallbackJourney: StoredJourney = {
+        id: journeyId,
+        destination: dest.city.toUpperCase(),
+        budget: 54000,
+        travelers: 2,
+        style: dest.styles.join(' · ') || 'Cultural & Scenic',
+        createdAt: new Date().toISOString(),
+        status: 'Planning',
+        destinations: [dest],
+        startDate: '2026-07-15',
+        endDate: '2026-07-22',
+        datesDecided: true,
+        travellersBreakdown: { adults: 2, children: 0 },
+        budgetValue: { amount: 54000, label: '₹54,000' },
+        interests: dest.styles || ['culture', 'nature', 'relaxed'],
+        pace: 'balanced',
+        coverImage: dest.image,
+        itinerary: [
+          {
+            dayNumber: 1,
+            date: 'Day 1',
+            city: dest.city,
+            activities: [
+              `Arrival & check-in at ${dest.city} boutique haven`,
+              `Evening stroll around ${dest.attractions[0] || 'heritage quarter'}`,
+              `Welcome dinner featuring local ${dest.city} cuisine`,
+            ],
+          },
+          {
+            dayNumber: 2,
+            date: 'Day 2',
+            city: dest.city,
+            activities: [
+              `Morning guided visit to ${dest.attractions[1] || 'signature landmarks'}`,
+              `Scenic cultural & artisan craft excursion`,
+              `Sunset viewpoint & relaxation`,
+            ],
+          },
+          {
+            dayNumber: 3,
+            date: 'Day 3',
+            city: dest.city,
+            activities: [
+              `Exploration of ${dest.attractions[2] || 'surrounding natural reserves'}`,
+              `Farewell banquet & travel journal reflection`,
+            ],
+          },
+        ],
+      };
+
+      travelStorage.saveJourney(fallbackJourney);
+      found = fallbackJourney;
+    }
+
     if (found) {
       setJourney(found);
       
@@ -65,18 +124,41 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
       if (found.budgetValue) {
         setEditBudgetLabel(found.budgetValue.label);
       } else {
-        setEditBudgetLabel('I\'ll decide later');
+        setEditBudgetLabel("I'll decide later");
       }
     }
   }, [journeyId]);
 
   if (!journey) {
     return (
-      <div className="min-h-screen bg-warmBg flex flex-col items-center justify-center font-sans">
-        <p className="text-mutedGray text-sm">Journey not found</p>
-        <button onClick={() => onNavigate('/')} className="mt-4 text-xs font-mono underline hover:text-black">
-          Return to Dashboard
-        </button>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center font-sans">
+        <div className="max-w-md w-full space-y-6">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#6F6F6F]">
+            AETHERA GLOBAL ARCHIVE
+          </span>
+          <h2 className="font-instrument text-4xl sm:text-5xl text-black leading-tight">
+            Explore Destinations
+          </h2>
+          <p className="text-sm font-inter text-[#6F6F6F]">
+            This journey is ready to be designed. Shape your upcoming itinerary with our bespoke studio.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => onNavigate('/planner/new')}
+              className="w-full sm:w-auto rounded-full px-8 py-3.5 bg-black text-white text-xs font-mono hover:bg-neutral-800 transition-all cursor-pointer shadow-md"
+            >
+              ✦ Plan a New Journey
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('/')}
+              className="w-full sm:w-auto rounded-full px-6 py-3.5 bg-neutral-100 text-black text-xs font-mono hover:bg-neutral-200 transition-all cursor-pointer"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
