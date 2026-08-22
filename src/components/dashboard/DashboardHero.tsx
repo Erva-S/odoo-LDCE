@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowUpRight, Plus } from 'lucide-react';
 
 interface DashboardHeroProps {
@@ -6,6 +7,17 @@ interface DashboardHeroProps {
 }
 
 export const DashboardHero = ({ onPlanNew, onExplore }: DashboardHeroProps) => {
+  // Key state to reset and trigger exactly one train journey animation on every mouse enter
+  const [trainKey, setTrainKey] = useState<number | null>(null);
+
+  const handleMouseEnter = () => {
+    setTrainKey(Date.now());
+  };
+
+  const handleMouseLeave = () => {
+    // Keep clean state
+  };
+
   return (
     <section id="hero" className="relative z-10 w-full pt-8 sm:pt-14 pb-16 sm:pb-20 text-center px-6">
       <div className="max-w-5xl mx-auto flex flex-col items-center">
@@ -33,13 +45,55 @@ export const DashboardHero = ({ onPlanNew, onExplore }: DashboardHeroProps) => {
 
         {/* Action Buttons */}
         <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 animate-fade-rise-delay-2">
+          {/* Plan a New Journey CTA with Cinematic Train Hover Animation */}
           <button
             type="button"
             onClick={onPlanNew}
-            className="flex items-center justify-center gap-2 rounded-full px-9 sm:px-12 py-4 sm:py-4.5 text-sm sm:text-base font-medium bg-[#000000] text-white shadow-md shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            className="group relative overflow-hidden flex items-center justify-center rounded-full px-9 sm:px-12 py-4 sm:py-4.5 text-sm sm:text-base font-medium bg-[#000000] text-white shadow-md shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Plan a New Journey</span>
+            {/* Cinematic Train Animation Layer */}
+            {trainKey !== null && (
+              <div
+                key={trainKey}
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none overflow-hidden rounded-full z-[2]"
+              >
+                {/* Train Vehicle + Motion Trail Container */}
+                <div className="absolute top-1/2 -translate-y-1/2 flex items-center animate-train-pass">
+                  {/* Subtle horizontal motion trail */}
+                  <div className="w-16 sm:w-24 h-[1.5px] bg-gradient-to-r from-transparent via-white/20 to-white/70 mr-1.5 shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+
+                  {/* Elegant luxury locomotive SVG silhouette */}
+                  <div className="relative flex items-center justify-center text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]">
+                    <svg
+                      className="w-[18px] h-[18px] sm:w-5 sm:h-5 text-white"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {/* Streamlined train chassis */}
+                      <path d="M4 15h13a3 3 0 0 0 3-3V9a2 2 0 0 0-2-2H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1Z" />
+                      <path d="M4 11h14" />
+                      <circle cx="7.5" cy="15" r="1" />
+                      <circle cx="13.5" cy="15" r="1" />
+                      {/* Subtle headlight ray */}
+                      <path d="M20 10l3 1v1l-3 1" strokeWidth="1.2" opacity="0.8" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Stable Content Layer */}
+            <span className="relative z-[3] flex items-center justify-center gap-2 pointer-events-none">
+              <Plus className="w-4 h-4 text-white" />
+              <span>Plan a New Journey</span>
+            </span>
           </button>
 
           <button
