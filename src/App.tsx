@@ -3,6 +3,8 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { VideoBackground } from './components/VideoBackground';
 import { DashboardPage } from './components/dashboard/DashboardPage';
+import { JourneyPlanner } from './components/dashboard/JourneyPlanner';
+import { JourneyDetail } from './components/dashboard/JourneyDetail';
 
 export function App() {
   // Default to dashboard so the user immediately sees the requested travel workspace
@@ -19,27 +21,74 @@ export function App() {
     }
   }, []);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = (path: string) => {
+    window.history.pushState(null, '', path);
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Helper to parse /journey/:id route
+  const getJourneyIdFromPath = (path: string): string | null => {
+    const match = path.match(/^\/journey\/([a-zA-Z0-9-]+)/);
+    return match ? match[1] : null;
+  };
+
+  const journeyId = getJourneyIdFromPath(currentPath);
+
+  // Render correct view based on path
+  const renderPathView = () => {
+    if (currentPath === '/planner/new') {
+      return (
+        <div className="animate-fade-rise">
+          <JourneyPlanner onNavigate={navigate} />
+        </div>
+      );
+    }
+    
+    if (journeyId) {
+      return (
+        <div className="animate-fade-rise">
+          <JourneyDetail journeyId={journeyId} onNavigate={navigate} />
+        </div>
+      );
+    }
+
+    // Default to main home page
+    return currentView === 'landing' ? (
+      <main className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-white selection:bg-black selection:text-white animate-fade-rise">
+        {/* Background Video Layer with Gradients */}
+        <VideoBackground />
+
+        {/* Navigation Bar */}
+        <Navbar onBeginJourney={() => setCurrentView('dashboard')} />
+
+        {/* Hero Section centered in the dashboard */}
+        <HeroSection onBeginJourney={() => setCurrentView('dashboard')} />
+
+        {/* Spacer to perfectly balance the navbar height on desktop */}
+        <div className="hidden md:block h-[88px] pointer-events-none" />
+      </main>
+    ) : (
+      <div className="animate-fade-rise">
+        <DashboardPage 
+          onGoToLanding={() => setCurrentView('landing')} 
+          onNavigate={navigate}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="w-full min-h-screen font-sans bg-white">
-      {currentView === 'landing' ? (
-        <main className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-white selection:bg-black selection:text-white animate-fade-rise">
-          {/* Background Video Layer with Gradients */}
-          <VideoBackground />
-
-          {/* Navigation Bar */}
-          <Navbar onBeginJourney={() => setCurrentView('dashboard')} />
-
-          {/* Hero Section centered in the dashboard */}
-          <HeroSection onBeginJourney={() => setCurrentView('dashboard')} />
-
-          {/* Spacer to perfectly balance the navbar height on desktop */}
-          <div className="hidden md:block h-[88px] pointer-events-none" />
-        </main>
-      ) : (
-        <div className="animate-fade-rise">
-          <DashboardPage onGoToLanding={() => setCurrentView('landing')} />
-        </div>
-      )}
+      {renderPathView()}
     </div>
   );
 }

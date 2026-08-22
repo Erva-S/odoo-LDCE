@@ -67,6 +67,16 @@ export const DashboardNavbar = ({
     { label: 'Journal', section: 'itinerary' },
   ];
 
+  const liveNavItems = [
+    { label: 'Live Map', section: 'live-map' },
+    { label: 'Near You', section: 'near-you' },
+    { label: 'Today’s Plan', section: 'today-schedule' },
+    { label: 'Companions', section: 'travel-together' },
+    { label: 'Budget', section: 'budget' },
+  ];
+
+  const currentNavItems = tripMode === 'live' ? liveNavItems : planningNavItems;
+
   const handleItemClick = (label: string, section: string) => {
     setActiveItem(label);
     setMobileMenuOpen(false);
@@ -96,21 +106,42 @@ export const DashboardNavbar = ({
             </button>
           )}
           <a
-            href="#hero"
+            href="#"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick('Home', 'hero');
+              handleItemClick(tripMode === 'live' ? 'Live Map' : 'Home', tripMode === 'live' ? 'live-map' : 'hero');
             }}
             className="font-instrument text-2xl sm:text-3xl tracking-tight text-[#000000] select-none hover:opacity-80 transition-opacity inline-flex items-baseline"
           >
             <span>Aethera</span>
             <sup className="text-xs font-sans ml-0.5 relative -top-3">°</sup>
           </a>
+
+          {/* Mode Switcher Pill */}
+          <button
+            type="button"
+            onClick={() => onToggleTripMode(tripMode === 'live' ? 'planning' : 'live')}
+            className={`hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono transition-all duration-200 cursor-pointer ${
+              tripMode === 'live'
+                ? 'bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-xs hover:bg-emerald-100'
+                : 'bg-neutral-100 text-[#6F6F6F] hover:text-black border border-[#E7E5E2] hover:bg-neutral-200'
+            }`}
+            title="Click to toggle between Planning Mode and Live Journey Companion Mode"
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                tripMode === 'live' ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400'
+              }`}
+            />
+            <span className="font-semibold uppercase tracking-wider">
+              {tripMode === 'live' ? 'LIVE JOURNEY' : 'PLANNING MODE'}
+            </span>
+          </button>
         </div>
 
         {/* Center Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          {navItems.map((item) => (
+        <nav className="hidden md:flex items-center space-x-7">
+          {currentNavItems.map((item) => (
             <button
               key={item.label}
               onClick={() => handleItemClick(item.label, item.section)}
@@ -134,7 +165,7 @@ export const DashboardNavbar = ({
             className="flex items-center gap-2 rounded-full px-3.5 py-2 text-xs sm:text-sm font-medium bg-neutral-100 hover:bg-neutral-200 text-[#000000] border border-[#E7E5E2] transition-all duration-200 hover:scale-[1.02] cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#000000]" />
-            <span>✦ AI Assistant</span>
+            <span>{tripMode === 'live' ? '✦ Travel Companion' : '✦ AI Assistant'}</span>
           </button>
 
           {/* Notifications Center */}
@@ -307,8 +338,21 @@ export const DashboardNavbar = ({
           </div>
         </div>
 
-        {/* Mobile menu trigger */}
+        {/* Mobile controls */}
         <div className="flex md:hidden items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onToggleTripMode(tripMode === 'live' ? 'planning' : 'live')}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase flex items-center gap-1 border ${
+              tripMode === 'live'
+                ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                : 'bg-neutral-100 text-neutral-600 border-neutral-300'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${tripMode === 'live' ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+            <span>{tripMode === 'live' ? 'LIVE' : 'PLAN'}</span>
+          </button>
+
           <button
             type="button"
             onClick={onOpenAI}
@@ -317,6 +361,7 @@ export const DashboardNavbar = ({
           >
             <Sparkles className="w-4 h-4" />
           </button>
+
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
