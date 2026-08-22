@@ -165,11 +165,10 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
                 className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed ${
-                    m.sender === 'user'
+                  className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed ${m.sender === 'user'
                       ? 'bg-[#000000] text-white rounded-br-none'
                       : 'bg-[#FAF8F5] border border-[#E7E5E2] text-[#000000] rounded-bl-none whitespace-pre-line'
-                  }`}
+                    }`}
                 >
                   {m.text}
                 </div>

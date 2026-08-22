@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
 
 interface LumoraTrainExperienceProps {
+  onContinueToPlanner?: () => void;
+  onClose?: () => void;
   onEnterDashboard?: () => void;
   onNavigate?: (path: string) => void;
 }
@@ -28,6 +30,8 @@ const VIDEOS = [
 const NAV_LINKS = ['How It Works', 'Features', 'Pricing', 'Community'];
 
 export const LumoraTrainExperience = ({
+  onContinueToPlanner,
+  onClose,
   onEnterDashboard,
   onNavigate,
 }: LumoraTrainExperienceProps) => {
@@ -60,8 +64,20 @@ export const LumoraTrainExperience = ({
     };
   }, []);
 
-  const handleAction = () => {
-    if (onEnterDashboard) {
+  // Main primary CTA action -> Continue to existing Journey Planner
+  const handleProceedToPlanner = () => {
+    if (onContinueToPlanner) {
+      onContinueToPlanner();
+    } else if (onNavigate) {
+      onNavigate('/planner/new');
+    }
+  };
+
+  // Close / Return to Aethera Home
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else if (onEnterDashboard) {
       onEnterDashboard();
     } else if (onNavigate) {
       onNavigate('/');
@@ -70,12 +86,12 @@ export const LumoraTrainExperience = ({
 
   const handleSubmitEmail = (e: React.FormEvent) => {
     e.preventDefault();
-    handleAction();
+    handleProceedToPlanner();
   };
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-black select-none">
-      {/* 1. Background Video Layer */}
+      {/* 1. Background Video Layer (Stacked absolutely with 1000ms crossfade) */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
         {VIDEOS.map((v, idx) => (
           <video
@@ -88,6 +104,7 @@ export const LumoraTrainExperience = ({
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
               activeVideo === idx ? 'opacity-100' : 'opacity-0'
             }`}
+            aria-hidden="true"
           />
         ))}
       </div>
@@ -109,13 +126,13 @@ export const LumoraTrainExperience = ({
           {/* Brand */}
           <div className="flex items-center gap-3">
             <button
-              onClick={handleAction}
+              onClick={handleClose}
               className="text-white italic text-2xl sm:text-3xl tracking-tight hover:opacity-90 transition-opacity font-instrument cursor-pointer"
             >
               Lumora
             </button>
             <span className="hidden sm:inline-flex text-[10px] font-mono uppercase tracking-widest text-white/60 px-2.5 py-0.5 rounded-full liquid-glass">
-              Scenic Train Studio
+              Mindfulness & Focus
             </span>
           </div>
 
@@ -124,7 +141,7 @@ export const LumoraTrainExperience = ({
             {NAV_LINKS.map((link) => (
               <button
                 key={link}
-                onClick={handleAction}
+                onClick={handleProceedToPlanner}
                 className="text-white/90 hover:text-white text-sm font-sans transition-colors cursor-pointer"
                 style={{ fontFamily: 'system-ui, sans-serif' }}
               >
@@ -133,38 +150,51 @@ export const LumoraTrainExperience = ({
             ))}
             <button
               type="button"
-              onClick={handleAction}
+              onClick={handleProceedToPlanner}
               className="bg-white text-black font-sans font-medium text-xs px-5 py-2 rounded-full hover:bg-neutral-100 transition-all hover:scale-[1.03] cursor-pointer shadow-sm ml-2 flex items-center gap-1.5"
               style={{ fontFamily: 'system-ui, sans-serif' }}
             >
-              <span>Enter Dashboard</span>
+              <span>Get Started</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </nav>
 
-          {/* Mobile Hamburger Button */}
-          <div className="md:hidden">
+          {/* Close / Return to Home Button */}
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="liquid-glass rounded-full p-2.5 text-white relative w-10 h-10 flex items-center justify-center cursor-pointer"
-              aria-label="Toggle Menu"
+              onClick={handleClose}
+              className="liquid-glass rounded-full px-4 py-2 text-white/80 hover:text-white text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+              title="Return to Home"
             >
-              <Menu
-                className={`w-5 h-5 absolute transition-all duration-300 ${
-                  mobileMenuOpen
-                    ? 'opacity-0 rotate-90 scale-75'
-                    : 'opacity-100 rotate-0 scale-100'
-                }`}
-              />
-              <X
-                className={`w-5 h-5 absolute transition-all duration-300 ${
-                  mobileMenuOpen
-                    ? 'opacity-100 rotate-0 scale-100'
-                    : 'opacity-0 -rotate-90 scale-75'
-                }`}
-              />
+              <X className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Return to Home</span>
             </button>
+
+            {/* Mobile Hamburger Button */}
+            <div className="md:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="liquid-glass rounded-full p-2.5 text-white relative w-10 h-10 flex items-center justify-center cursor-pointer"
+                aria-label="Toggle Menu"
+              >
+                <Menu
+                  className={`w-5 h-5 absolute transition-all duration-300 ${
+                    mobileMenuOpen
+                      ? 'opacity-0 rotate-90 scale-75'
+                      : 'opacity-100 rotate-0 scale-100'
+                  }`}
+                />
+                <X
+                  className={`w-5 h-5 absolute transition-all duration-300 ${
+                    mobileMenuOpen
+                      ? 'opacity-100 rotate-0 scale-100'
+                      : 'opacity-0 -rotate-90 scale-75'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -187,7 +217,7 @@ export const LumoraTrainExperience = ({
                   key={link}
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    handleAction();
+                    handleProceedToPlanner();
                   }}
                   className="text-white text-3xl font-instrument hover:text-neutral-300 text-left transition-all duration-500 transform translate-y-0 cursor-pointer"
                   style={{
@@ -200,18 +230,29 @@ export const LumoraTrainExperience = ({
               ))}
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 flex flex-col gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  handleAction();
+                  handleProceedToPlanner();
                 }}
                 className="w-full bg-white text-black font-sans font-semibold py-4 rounded-full text-sm hover:bg-neutral-200 transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
                 style={{ fontFamily: 'system-ui, sans-serif' }}
               >
-                <span>Enter Dashboard</span>
+                <span>Get Started</span>
                 <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleClose();
+                }}
+                className="w-full liquid-glass text-white/80 py-3 rounded-full text-xs font-mono text-center cursor-pointer"
+              >
+                Return to Aethera Home
               </button>
             </div>
           </div>
@@ -324,10 +365,11 @@ export const LumoraTrainExperience = ({
 
           <div>
             <button
-              onClick={handleAction}
-              className="text-white hover:text-white/80 underline underline-offset-4 text-xs font-mono transition-colors cursor-pointer"
+              onClick={handleProceedToPlanner}
+              className="text-white hover:text-white/80 underline underline-offset-4 text-xs font-mono transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              Enter Dashboard →
+              <span>Continue to Plan Your Journey</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </footer>

@@ -236,7 +236,7 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
         <div className="animate-fade-rise">
           {/* 4. Dashboard Hero Greeting with Train Hover Animation and Direct Planner Navigation */}
           <DashboardHero
-            onPlanNew={() => onNavigate('/planner/new')}
+            onPlanNew={() => onNavigate('/plan')}
             onExplore={() => scrollToSection('discovery')}
             onOpenTrain={() => onNavigate('/train')}
           />
