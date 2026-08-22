@@ -307,13 +307,17 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
         </div>
       )}
 
-      {/* Create New Journey Modal (National vs International) */}
+      {/* Create New Journey Modal (National vs International vs Custom Builder) */}
       <CreateJourneyModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSelectType={(type) => {
           setIsCreateModalOpen(false);
-          setActivePlanningJourney(type);
+          if (type === 'custom_builder') {
+            onNavigate('/planner/new');
+          } else {
+            setActivePlanningJourney(type);
+          }
         }}
       />
 

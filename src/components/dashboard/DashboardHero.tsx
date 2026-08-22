@@ -90,7 +90,7 @@ export const DashboardHero = ({ onPlanNew, onExplore }: DashboardHeroProps) => {
             )}
 
             {/* Stable Content Layer */}
-            <span className="relative z-[3] flex items-center justify-center gap-2 pointer-events-none">
+            <span className="relative z-[3] flex items-center justify-center gap-2">
               <Plus className="w-4 h-4 text-white" />
               <span>Plan a New Journey</span>
             </span>
