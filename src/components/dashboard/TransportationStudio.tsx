@@ -326,21 +326,21 @@ export const TransportationStudio: React.FC<TransportationStudioProps> = ({
             )}
           </div>
 
-          {/* TWO MAIN CHOICE CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {/* THREE MAIN CHOICE CARDS: BIKE, FLIGHT, TRAIN */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {/* CARD 1: RENT A BIKE */}
             <div
               onClick={() => setFlow('bike_search')}
-              className="group bg-[#FFFFFF] border border-[#E8E6E2] hover:border-black rounded-[28px] p-8 sm:p-10 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+              className="group bg-[#FFFFFF] border border-[#E8E6E2] hover:border-black rounded-[28px] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
             >
               <div>
-                <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#E7E5E2] flex items-center justify-center text-black mb-8 group-hover:bg-black group-hover:text-white transition-all duration-300">
-                  <Bike className="w-7 h-7 transition-transform group-hover:scale-110" />
+                <div className="w-12 h-12 rounded-2xl bg-[#FAF8F5] border border-[#E7E5E2] flex items-center justify-center text-black mb-6 group-hover:bg-black group-hover:text-white transition-all duration-300">
+                  <Bike className="w-6 h-6 transition-transform group-hover:scale-110" />
                 </div>
-                <h3 className="font-instrument text-4xl text-[#000000] leading-none mb-3">
+                <h3 className="font-instrument text-3xl text-[#000000] leading-none mb-2.5">
                   Rent a Bike
                 </h3>
-                <p className="text-base text-[#000000] font-inter font-medium leading-snug mb-2">
+                <p className="text-sm text-[#000000] font-inter font-medium leading-snug mb-1.5">
                   Explore your destination freely with a bike or scooter.
                 </p>
                 <p className="text-xs text-[#6F6F6F] font-inter leading-relaxed">
@@ -348,50 +348,80 @@ export const TransportationStudio: React.FC<TransportationStudioProps> = ({
                 </p>
               </div>
 
-              <div className="pt-8 mt-6 border-t border-neutral-100 flex items-center justify-between">
-                <span className="text-xs font-mono uppercase text-[#6F6F6F]">
-                  Cruisers · Scooters · EVs
+              <div className="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase text-[#6F6F6F]">
+                  Cruisers · Scooters
                 </span>
-                <div className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-[#000000] text-white text-xs font-medium group-hover:bg-neutral-800 transition-all">
+                <div className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium group-hover:bg-neutral-800 transition-all">
                   <span>Rent a Bike</span>
                   <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
             </div>
 
-            {/* CARD 2: BOOK A FLIGHT */}
+            {/* CARD 2: SEARCH & BOOK A FLIGHT */}
             <div
-              onClick={() => {
-                if (onOpenTrainExperience) {
-                  // Launch the requested train transition or flight flow
-                  setFlow('flight_search');
-                } else {
-                  setFlow('flight_search');
-                }
-              }}
-              className="group bg-[#FFFFFF] border border-[#E8E6E2] hover:border-black rounded-[28px] p-8 sm:p-10 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+              onClick={() => setFlow('flight_search')}
+              className="group bg-[#FFFFFF] border border-[#E8E6E2] hover:border-black rounded-[28px] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
             >
               <div>
-                <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#E7E5E2] flex items-center justify-center text-black mb-8 group-hover:bg-black group-hover:text-white transition-all duration-300">
-                  <Plane className="w-7 h-7 transition-transform group-hover:scale-110" />
+                <div className="w-12 h-12 rounded-2xl bg-[#FAF8F5] border border-[#E7E5E2] flex items-center justify-center text-black mb-6 group-hover:bg-black group-hover:text-white transition-all duration-300">
+                  <Plane className="w-6 h-6 transition-transform group-hover:scale-110" />
                 </div>
-                <h3 className="font-instrument text-4xl text-[#000000] leading-none mb-3">
+                <h3 className="font-instrument text-3xl text-[#000000] leading-none mb-2.5">
                   Book a Flight
                 </h3>
-                <p className="text-base text-[#000000] font-inter font-medium leading-snug mb-2">
-                  Find and organize flights for your journey.
+                <p className="text-sm text-[#000000] font-inter font-medium leading-snug mb-1.5">
+                  Search & organize flights on ixigo for your journey.
                 </p>
                 <p className="text-xs text-[#6F6F6F] font-inter leading-relaxed">
-                  Compare travel options and keep your flight details synchronized with your trip.
+                  Compare regional routes and synchronize your tickets with your Aethera trip.
                 </p>
               </div>
 
-              <div className="pt-8 mt-6 border-t border-neutral-100 flex items-center justify-between">
-                <span className="text-xs font-mono uppercase text-[#6F6F6F]">
-                  Domestic & Regional Routes
+              <div className="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase text-[#6F6F6F]">
+                  ixigo Live Search
                 </span>
-                <div className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-[#000000] text-white text-xs font-medium group-hover:bg-neutral-800 transition-all">
-                  <span>Book a Flight</span>
+                <div className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium group-hover:bg-neutral-800 transition-all">
+                  <span>Search Flights</span>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </div>
+
+            {/* CARD 3: SEARCH & BOOK A TRAIN */}
+            <div
+              onClick={() => {
+                window.open(
+                  'https://www.ixigo.com/trains/search-pwa/from/SBI/to/LTT/03-09-2026',
+                  '_blank',
+                  'noopener,noreferrer'
+                );
+              }}
+              className="group bg-[#FFFFFF] border border-[#E8E6E2] hover:border-black rounded-[28px] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-[#FAF8F5] border border-[#E7E5E2] flex items-center justify-center text-black mb-6 group-hover:bg-black group-hover:text-white transition-all duration-300">
+                  <Train className="w-6 h-6 transition-transform group-hover:scale-110" />
+                </div>
+                <h3 className="font-instrument text-3xl text-[#000000] leading-none mb-2.5">
+                  Book a Train
+                </h3>
+                <p className="text-sm text-[#000000] font-inter font-medium leading-snug mb-1.5">
+                  Search live trains & scenic routes across India on ixigo.
+                </p>
+                <p className="text-xs text-[#6F6F6F] font-inter leading-relaxed">
+                  Real-time IRCTC train availability, seat booking, and VistaDome connections.
+                </p>
+              </div>
+
+              <div className="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase text-[#6F6F6F]">
+                  ixigo Trains Live
+                </span>
+                <div className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium group-hover:bg-neutral-800 transition-all">
+                  <span>Search Trains ↗</span>
                   <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
@@ -744,6 +774,11 @@ export const TransportationStudio: React.FC<TransportationStudioProps> = ({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                window.open(
+                  'https://www.ixigo.com/search/result/flight?from=BDQ&to=BOM&date=03092026&adults=1&children=0&infants=0&class=e&source=Search+Form&utm_source=Brand_Ggl_Search&utm_medium=paid_search_google',
+                  '_blank',
+                  'noopener,noreferrer'
+                );
                 setFlow('flight_results');
               }}
               className="space-y-6"

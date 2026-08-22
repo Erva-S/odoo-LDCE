@@ -8,9 +8,10 @@ import { JourneyDetail } from './components/dashboard/JourneyDetail';
 import { TripProvider } from './context/TripContext';
 
 import { LumoraTrainExperience } from './components/LumoraTrainExperience';
+import { LoginPage } from './components/LoginPage';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
+  const [currentView, setCurrentView] = useState<'landing' | 'login' | 'dashboard'>('dashboard');
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
@@ -37,6 +38,23 @@ export function App() {
 
   // Render correct view based on path
   const renderPathView = () => {
+    if (currentPath === '/login') {
+      return (
+        <div className="animate-fade-rise">
+          <LoginPage
+            onLoginSuccess={() => {
+              setCurrentView('dashboard');
+              navigate('/');
+            }}
+            onBackToLanding={() => {
+              setCurrentView('landing');
+              navigate('/');
+            }}
+          />
+        </div>
+      );
+    }
+
     if (currentPath === '/plan' || currentPath === '/planner/intro' || currentPath === '/train' || currentPath === '/lumora' || currentPath === '/train-experience') {
       return (
         <div className="animate-fade-rise">
@@ -66,6 +84,18 @@ export function App() {
       );
     }
 
+    // Login View when triggered from Begin Journey
+    if (currentView === 'login') {
+      return (
+        <div className="animate-fade-rise">
+          <LoginPage
+            onLoginSuccess={() => setCurrentView('dashboard')}
+            onBackToLanding={() => setCurrentView('landing')}
+          />
+        </div>
+      );
+    }
+
     // Default to main home page or dashboard
     return currentView === 'landing' ? (
       <main className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-white selection:bg-black selection:text-white animate-fade-rise">
@@ -73,10 +103,10 @@ export function App() {
         <VideoBackground />
 
         {/* Navigation Bar */}
-        <Navbar onBeginJourney={() => setCurrentView('dashboard')} />
+        <Navbar onBeginJourney={() => setCurrentView('login')} />
 
         {/* Hero Section centered in the dashboard */}
-        <HeroSection onBeginJourney={() => setCurrentView('dashboard')} />
+        <HeroSection onBeginJourney={() => setCurrentView('login')} />
 
         {/* Spacer to perfectly balance the navbar height on desktop */}
         <div className="hidden md:block h-[88px] pointer-events-none" />
