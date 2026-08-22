@@ -10,6 +10,7 @@ import {
   Train,
 } from 'lucide-react';
 import { travelStorage, StoredTransportItem } from '../../services/travelStorage';
+import { ViktorFlightHero } from '../ViktorFlightHero';
 
 interface TransportationStudioProps {
   onOpenTrainExperience?: () => void;
@@ -17,7 +18,7 @@ interface TransportationStudioProps {
   initialJourneyId?: string;
 }
 
-type TransportMode = 'decision' | 'bike_search' | 'bike_results' | 'bike_summary' | 'flight_search' | 'flight_results' | 'flight_summary';
+type TransportMode = 'decision' | 'bike_search' | 'bike_results' | 'bike_summary' | 'flight_hero' | 'flight_search' | 'flight_results' | 'flight_summary';
 
 interface BikeItem {
   id: string;
@@ -361,14 +362,7 @@ export const TransportationStudio: React.FC<TransportationStudioProps> = ({
 
             {/* CARD 2: BOOK A FLIGHT */}
             <div
-              onClick={() => {
-                if (onOpenTrainExperience) {
-                  // Launch the requested train transition or flight flow
-                  setFlow('flight_search');
-                } else {
-                  setFlow('flight_search');
-                }
-              }}
+              onClick={() => setFlow('flight_hero')}
               className="group bg-[#FFFFFF] border border-[#E8E6E2] hover:border-black rounded-[28px] p-8 sm:p-10 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
             >
               <div>
@@ -397,6 +391,19 @@ export const TransportationStudio: React.FC<TransportationStudioProps> = ({
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          VIEW: FULLSCREEN VIKTOR FLIGHT HERO CINEMATIC EXPERIENCE
+      ========================================================================= */}
+      {flow === 'flight_hero' && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black animate-fade-rise">
+          <ViktorFlightHero
+            onProceedToFlights={() => setFlow('flight_search')}
+            onEnterDashboard={() => setFlow('decision')}
+            onNavigate={onNavigate}
+          />
         </div>
       )}
 

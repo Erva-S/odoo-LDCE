@@ -8,6 +8,7 @@ import { JourneyDetail } from './components/dashboard/JourneyDetail';
 import { TripProvider } from './context/TripContext';
 
 import { LumoraTrainExperience } from './components/LumoraTrainExperience';
+import { ViktorFlightHero } from './components/ViktorFlightHero';
 
 export function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
@@ -41,6 +42,18 @@ export function App() {
       return (
         <div className="animate-fade-rise">
           <LumoraTrainExperience
+            onEnterDashboard={() => navigate('/')}
+            onNavigate={navigate}
+          />
+        </div>
+      );
+    }
+
+    if (currentPath === '/flights' || currentPath === '/flight' || currentPath === '/flight-experience' || currentPath === '/transport/flight') {
+      return (
+        <div className="animate-fade-rise">
+          <ViktorFlightHero
+            onProceedToFlights={() => navigate('/')}
             onEnterDashboard={() => navigate('/')}
             onNavigate={navigate}
           />
