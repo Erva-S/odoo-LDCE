@@ -516,7 +516,7 @@ export const JourneyPlanner = ({ onNavigate }: JourneyPlannerProps) => {
                   No destinations selected yet. Search and select above to begin.
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {selectedDestinations.map((dest, index) => (
                     <div
                       key={dest.city + index}
@@ -525,61 +525,105 @@ export const JourneyPlanner = ({ onNavigate }: JourneyPlannerProps) => {
                       onDragEnter={() => handleDragEnter(index)}
                       onDragEnd={handleDragEnd}
                       onDragOver={(e) => e.preventDefault()}
-                      className="group flex items-center justify-between bg-[#FFFFFF] border border-subtleBorder hover:border-black rounded-xl p-3 sm:p-4 card-hover-effect cursor-grab active:cursor-grabbing relative"
+                      className="group bg-[#FFFFFF] border border-[#E7E5E2] hover:border-black rounded-2xl p-4 sm:p-5 card-hover-effect cursor-grab active:cursor-grabbing relative transition-all shadow-xs hover:shadow-md space-y-4"
                     >
-                      <div className="flex items-center gap-4">
-                        {/* Drag Handle Indicator */}
-                        <div className="text-mutedGray/50 group-hover:text-black transition-colors">
-                          <Move className="w-4 h-4 cursor-grab" />
+                      {/* Top Header Bar */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {/* Drag Handle Indicator */}
+                          <div className="text-mutedGray/50 group-hover:text-black transition-colors cursor-grab">
+                            <Move className="w-4 h-4" />
+                          </div>
+
+                          {/* Number Index */}
+                          <span className="font-mono text-xs text-mutedGray font-bold">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+
+                          {/* City Details */}
+                          <div>
+                            <h3 className="font-instrument text-2xl text-black leading-none mb-0.5">
+                              {dest.city}
+                            </h3>
+                            <p className="text-xs text-mutedGray font-inter">
+                              {dest.region}, {dest.country} · {dest.recommendedDuration} Days Recommended
+                            </p>
+                          </div>
                         </div>
 
-                        {/* Number Index */}
-                        <span className="font-mono text-xs text-mutedGray font-bold">
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
+                        {/* Controls and Actions */}
+                        <div className="flex items-center gap-2">
+                          {/* Reordering Move Controls */}
+                          <div className="flex items-center gap-1 text-mutedGray">
+                            <button
+                              type="button"
+                              onClick={() => moveDestination(index, 'up')}
+                              disabled={index === 0}
+                              className="p-1.5 hover:text-black hover:bg-neutral-100 rounded disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                              title="Move up"
+                            >
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveDestination(index, 'down')}
+                              disabled={index === selectedDestinations.length - 1}
+                              className="p-1.5 hover:text-black hover:bg-neutral-100 rounded disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                              title="Move down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
 
-                        {/* Image Thumbnail */}
-                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 hidden sm:block shrink-0">
-                          <img src={dest.image} alt={dest.city} className="w-full h-full object-cover" />
-                        </div>
-
-                        {/* City Details */}
-                        <div>
-                          <h3 className="font-instrument text-xl text-black leading-none mb-1">{dest.city}</h3>
-                          <p className="text-xs text-mutedGray font-inter">{dest.region}, {dest.country}</p>
+                          {/* Delete button */}
+                          <button
+                            type="button"
+                            onClick={() => removeDestination(index)}
+                            className="p-2 text-mutedGray hover:text-red-500 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer"
+                            title="Remove city"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
 
-                      {/* Controls and Actions */}
-                      <div className="flex items-center gap-2">
-                        {/* Reordering Move Controls */}
-                        <div className="flex flex-col text-mutedGray">
-                          <button
-                            onClick={() => moveDestination(index, 'up')}
-                            disabled={index === 0}
-                            className="p-1 hover:text-black disabled:opacity-30 disabled:pointer-events-none"
-                            title="Move up"
-                          >
-                            <ChevronUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => moveDestination(index, 'down')}
-                            disabled={index === selectedDestinations.length - 1}
-                            className="p-1 hover:text-black disabled:opacity-30 disabled:pointer-events-none"
-                            title="Move down"
-                          >
-                            <ChevronDown className="w-3.5 h-3.5" />
-                          </button>
+                      {/* 2 High-Resolution Photos Showcase */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="relative h-28 sm:h-36 rounded-xl overflow-hidden bg-neutral-900 group-hover:scale-[1.01] transition-transform">
+                          <img
+                            src={dest.image}
+                            alt={`${dest.city} landmark view 1`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                          <span className="absolute bottom-2 left-2 text-[10px] font-mono text-white/90 px-2 py-0.5 rounded bg-black/50 backdrop-blur-xs line-clamp-1">
+                            {dest.attractions[0] || `${dest.city} Landmark`}
+                          </span>
                         </div>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={() => removeDestination(index)}
-                          className="p-2 text-mutedGray hover:text-red-500 rounded-full hover:bg-neutral-50 transition-colors"
-                          title="Remove city"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        <div className="relative h-28 sm:h-36 rounded-xl overflow-hidden bg-neutral-900 group-hover:scale-[1.01] transition-transform">
+                          <img
+                            src={dest.secondaryImage || dest.image}
+                            alt={`${dest.city} landmark view 2`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                          <span className="absolute bottom-2 left-2 text-[10px] font-mono text-white/90 px-2 py-0.5 rounded bg-black/50 backdrop-blur-xs line-clamp-1">
+                            {dest.attractions[1] || `${dest.city} Heritage`}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* City Attractions & Style Badges */}
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        {dest.attractions.slice(0, 3).map((att, attIdx) => (
+                          <span
+                            key={attIdx}
+                            className="text-[10px] font-mono text-neutral-600 bg-[#FAF8F5] border border-[#E7E5E2] px-2 py-0.5 rounded-full"
+                          >
+                            • {att}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   ))}

@@ -3,6 +3,7 @@ export interface DestinationInfo {
   country: string;
   region: string;
   image: string;
+  secondaryImage?: string;
   lat: number;
   lng: number;
   xPercent: number; // for custom map visualizations
@@ -20,6 +21,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Maharashtra',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1567157577867-05ccb1388e66?q=80&w=800&auto=format&fit=crop',
     lat: 18.9220,
     lng: 72.8347,
     xPercent: 28,
@@ -41,6 +43,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Goa',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?q=80&w=800&auto=format&fit=crop',
     lat: 15.2993,
     lng: 74.1240,
     xPercent: 32,
@@ -61,7 +64,8 @@ export const DESTINATIONS: DestinationInfo[] = [
     city: 'Jaipur',
     region: 'Rajasthan',
     country: 'India',
-    image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?q=80&w=800&auto=format&fit=crop',
     lat: 26.9124,
     lng: 75.7873,
     xPercent: 35,
@@ -69,7 +73,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     recommendedDuration: 3,
     styles: ['culture', 'heritage', 'photography', 'luxury', 'budget'],
     budgetLevel: '$$',
-    attractions: ['Amber Fort', 'Hawa Mahal Palace of Winds', 'City Palace Museum', 'Jantar Mantar Observatory', 'Patrika Gate'],
+    attractions: ['Hawa Mahal Palace of Winds', 'Amber Fort & Sheesh Mahal', 'City Palace Museum', 'Jantar Mantar Observatory', 'Patrika Gate'],
     activities: [
       { name: 'Golden hour photography at Hawa Mahal', styles: ['photography', 'culture'] },
       { name: 'Jeep safari & fort exploration at Amber Fort', styles: ['adventure', 'heritage'] },
@@ -83,6 +87,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Delhi NCR',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1592635196078-9fdc757f27f4?q=80&w=800&auto=format&fit=crop',
     lat: 28.6139,
     lng: 77.2090,
     xPercent: 42,
@@ -104,6 +109,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Kerala',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?q=80&w=800&auto=format&fit=crop',
     lat: 9.9312,
     lng: 76.2673,
     xPercent: 55,
@@ -125,6 +131,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Karnataka',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=800&auto=format&fit=crop',
     lat: 12.9716,
     lng: 77.5946,
     xPercent: 50,
@@ -145,6 +152,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Jammu & Kashmir',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=800&auto=format&fit=crop',
     lat: 34.0837,
     lng: 74.7973,
     xPercent: 38,
@@ -165,6 +173,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Rajasthan',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?q=80&w=800&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?q=80&w=800&auto=format&fit=crop',
     lat: 24.5854,
     lng: 73.7125,
     xPercent: 31,
@@ -185,6 +194,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Ladakh',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1200&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=800&auto=format&fit=crop',
     lat: 34.1526,
     lng: 77.5771,
     xPercent: 40,
@@ -206,6 +216,7 @@ export const DESTINATIONS: DestinationInfo[] = [
     region: 'Rajasthan',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=1200&auto=format&fit=crop',
+    secondaryImage: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?q=80&w=800&auto=format&fit=crop',
     lat: 26.9124,
     lng: 75.7873,
     xPercent: 35,
@@ -246,14 +257,15 @@ export const getOrCreateDestination = (cityName: string): DestinationInfo => {
     region: 'India',
     country: 'India',
     image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop',
-    lat: 20.5937, // default middle-india
+    secondaryImage: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800&auto=format&fit=crop',
+    lat: 20.5937,
     lng: 78.9629,
     xPercent: 50,
     yPercent: 50,
     recommendedDuration: 2,
     styles: ['relaxed', 'culture', 'food'],
     budgetLevel: '$$',
-    attractions: [`Scenic viewpoints in ${formattedName}`, `Local bazaar district`, `Historical landmarks`],
+    attractions: [`Scenic viewpoints in ${formattedName}`, `Local heritage district`, `Signature landmarks`],
     activities: [
       { name: `Explore ${formattedName} highlights & sights`, styles: ['culture', 'relaxed'] },
       { name: `Dine on traditional local dishes in ${formattedName}`, styles: ['food'] },
