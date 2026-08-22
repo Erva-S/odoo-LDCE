@@ -131,7 +131,7 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
               <div>
                 <h3 className="font-instrument text-2xl text-[#000000] leading-none">Aethera AI</h3>
                 <p className="text-[11px] text-[#6F6F6F] font-inter mt-0.5">
-                  Powered by GPT-4o Intelligent Curation
+                  Powered by Claude 3.5 Sonnet Intelligent Curation
                 </p>
               </div>
             </div>

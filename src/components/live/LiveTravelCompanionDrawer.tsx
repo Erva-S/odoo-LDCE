@@ -168,7 +168,7 @@ export const LiveTravelCompanionDrawer = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-[#6F6F6F] font-inter mt-0.5">
-                  Real-time in-destination GPT-4o assistant
+                  Real-time in-destination Claude 3.5 Sonnet assistant
                 </p>
               </div>
             </div>
