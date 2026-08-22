@@ -9,7 +9,8 @@ import {
   Edit3,
   Save,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Calendar
 } from 'lucide-react';
 import { travelStorage, StoredJourney, ItineraryDay } from '../../services/travelStorage';
 import { DestinationInfo, getOrCreateDestination, searchCities } from '../../services/destinations';
@@ -133,7 +134,17 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
 
     const newItinerary = [...journey.itinerary];
     const newDay = { ...newItinerary[dayIndex] };
-    newDay.activities = [...newDay.activities, text];
+    
+    const newActivity = {
+      id: crypto.randomUUID(),
+      name: text,
+      startTime: '09:00',
+      endTime: '10:30',
+      location: newDay.city || '',
+      description: '',
+      cost: 0
+    };
+    newDay.activities = [...newDay.activities, newActivity];
     newItinerary[dayIndex] = newDay;
 
     setJourney({
@@ -275,25 +286,73 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
             dateStr = curDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
           }
 
-          const dayActivities: string[] = [];
+          const dayActivities: any[] = [];
           
           if (d === 0) {
-            dayActivities.push(`Arrival in ${dest.city} · Private airport transfer & boutique check-in`);
+            dayActivities.push({
+              id: crypto.randomUUID(),
+              name: `Arrival in ${dest.city}`,
+              startTime: '09:00',
+              endTime: '10:30',
+              location: dest.city,
+              description: 'Private airport transfer & boutique check-in',
+              cost: 0
+            });
             const firstAct = activeActivitiesList.find(a => a.styles.includes('relaxed') || a.styles.includes('photography')) 
               || activeActivitiesList[0];
-            dayActivities.push(firstAct.name);
+            dayActivities.push({
+              id: crypto.randomUUID(),
+              name: firstAct.name,
+              startTime: '11:00',
+              endTime: '13:00',
+              location: dest.city,
+              description: 'Relaxed introductory exploration matching your style.',
+              cost: 0
+            });
           } else {
             const att = dest.attractions[(d - 1) % dest.attractions.length];
-            dayActivities.push(`Explore ${att} and cultural surroundings`);
+            dayActivities.push({
+              id: crypto.randomUUID(),
+              name: `Explore ${att}`,
+              startTime: '10:00',
+              endTime: '12:30',
+              location: att,
+              description: 'Visit local landmarks and cultural sites.',
+              cost: 0
+            });
             const act = activeActivitiesList[(d) % activeActivitiesList.length];
-            dayActivities.push(act.name);
+            dayActivities.push({
+              id: crypto.randomUUID(),
+              name: act.name,
+              startTime: '14:30',
+              endTime: '17:00',
+              location: dest.city,
+              description: 'Curated activity according to chosen travel style.',
+              cost: 0
+            });
           }
 
           if (d === cityDays - 1 && cityIdx < N - 1) {
             const nextCity = editCities[cityIdx + 1].city;
-            dayActivities.push(`Evening scenic transfer to ${nextCity} · Leisurely arrival check-in`);
+            dayActivities.push({
+              id: crypto.randomUUID(),
+              name: `Transfer to ${nextCity}`,
+              startTime: '18:00',
+              endTime: '20:30',
+              location: nextCity,
+              description: 'Scenic evening connection and arrival check-in.',
+              cost: 0
+            });
           } else if (d === cityDays - 1 && cityIdx === N - 1) {
-            dayActivities.push(`Leisurely departure prep · Souvenir collection & airport departure transfer`);
+            dayActivities.push({
+              id: crypto.randomUUID(),
+              name: `Departure prep & transfer`,
+              startTime: '11:00',
+              endTime: '13:30',
+              location: dest.city,
+              description: 'Souvenir collection & airport departure transfer.',
+              cost: 0
+            });
           }
 
           itinerary.push({
@@ -374,6 +433,14 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
         </button>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => onNavigate(`/journey/${journeyId}/calendar`)}
+            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Calendar & Timeline</span>
+          </button>
+
           <button
             onClick={() => setIsEditingParams(!isEditingParams)}
             className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
@@ -756,10 +823,20 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
                           <div className="space-y-3">
                             {day.activities.map((act, actIdx) => (
                               <div
-                                key={actIdx}
+                                key={act.id || actIdx}
                                 className="group flex items-start justify-between bg-warmBg/50 hover:bg-warmBg rounded-xl p-3 border border-subtleBorder text-xs text-black leading-relaxed transition-all"
                               >
-                                <span className="pr-4">{act}</span>
+                                <div className="flex flex-col gap-1 pr-4">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-mono text-[10px] bg-neutral-100 px-1.5 py-0.5 rounded text-mutedGray">
+                                      {act.startTime} - {act.endTime}
+                                    </span>
+                                    <span className="font-medium text-black">{act.name}</span>
+                                  </div>
+                                  {act.description && <p className="text-[11px] text-mutedGray mt-1 leading-snug">{act.description}</p>}
+                                  {act.location && <span className="text-[10px] text-neutral-400 font-mono mt-0.5">📍 {act.location}</span>}
+                                  {typeof act.cost === 'number' && act.cost > 0 && <span className="text-[10px] text-neutral-500 font-mono">₹{act.cost.toLocaleString()}</span>}
+                                </div>
 
                                 <div className="opacity-0 group-hover:opacity-100 flex items-center gap-2 shrink-0 transition-opacity">
                                   {/* Shift Days Dropdown */}
