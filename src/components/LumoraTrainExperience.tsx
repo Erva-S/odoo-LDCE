@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { X, ArrowRight, Sparkles } from 'lucide-react';
 
 interface LumoraTrainExperienceProps {
   onContinueToPlanner?: () => void;
@@ -121,81 +121,27 @@ export const LumoraTrainExperience = ({
 
       {/* 3. Content Layer (z-index 2) */}
       <div className="relative z-10 w-full h-full flex flex-col justify-between px-6 sm:px-12 py-6 sm:py-8 font-serif">
-        {/* Navigation Bar (Top) */}
+        {/* Navigation Bar (Top) - Clean & Minimal */}
         <header className="w-full max-w-7xl mx-auto flex items-center justify-between">
           {/* Brand */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleClose}
-              className="text-white italic text-2xl sm:text-3xl tracking-tight hover:opacity-90 transition-opacity font-instrument cursor-pointer"
-            >
-              Lumora
-            </button>
-            <span className="hidden sm:inline-flex text-[10px] font-mono uppercase tracking-widest text-white/60 px-2.5 py-0.5 rounded-full liquid-glass">
-              Mindfulness & Focus
-            </span>
-          </div>
+          <button
+            onClick={handleClose}
+            className="text-white italic text-2xl sm:text-3xl tracking-tight hover:opacity-80 transition-opacity font-instrument cursor-pointer"
+          >
+            Lumora
+          </button>
 
-          {/* Desktop Nav Pill */}
-          <nav className="hidden md:flex items-center gap-6 liquid-glass rounded-full px-6 py-2">
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link}
-                onClick={handleProceedToPlanner}
-                className="text-white/90 hover:text-white text-sm font-sans transition-colors cursor-pointer"
-                style={{ fontFamily: 'system-ui, sans-serif' }}
-              >
-                {link}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={handleProceedToPlanner}
-              className="bg-white text-black font-sans font-medium text-xs px-5 py-2 rounded-full hover:bg-neutral-100 transition-all hover:scale-[1.03] cursor-pointer shadow-sm ml-2 flex items-center gap-1.5"
-              style={{ fontFamily: 'system-ui, sans-serif' }}
-            >
-              <span>Get Started</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </nav>
-
-          {/* Close / Return to Home Button */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="liquid-glass rounded-full px-4 py-2 text-white/80 hover:text-white text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
-              title="Return to Home"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Return to Home</span>
-            </button>
-
-            {/* Mobile Hamburger Button */}
-            <div className="md:hidden">
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="liquid-glass rounded-full p-2.5 text-white relative w-10 h-10 flex items-center justify-center cursor-pointer"
-                aria-label="Toggle Menu"
-              >
-                <Menu
-                  className={`w-5 h-5 absolute transition-all duration-300 ${
-                    mobileMenuOpen
-                      ? 'opacity-0 rotate-90 scale-75'
-                      : 'opacity-100 rotate-0 scale-100'
-                  }`}
-                />
-                <X
-                  className={`w-5 h-5 absolute transition-all duration-300 ${
-                    mobileMenuOpen
-                      ? 'opacity-100 rotate-0 scale-100'
-                      : 'opacity-0 -rotate-90 scale-75'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
+          {/* Minimal Close Button */}
+          <button
+            type="button"
+            onClick={handleClose}
+            className="liquid-glass rounded-full p-2.5 sm:px-4 sm:py-2 text-white/80 hover:text-white text-xs font-mono transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
+            aria-label="Close and return to home"
+            title="Return to Home"
+          >
+            <X className="w-4 h-4" />
+            <span className="hidden sm:inline">Close</span>
+          </button>
         </header>
 
         {/* Mobile Menu Overlay */}
