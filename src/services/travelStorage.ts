@@ -1,11 +1,38 @@
+import { DestinationInfo } from './destinations';
+
+export interface ItineraryDay {
+  dayNumber: number;
+  date: string; // e.g. "12 Jun" or "Day 1"
+  city: string;
+  activities: string[];
+}
+
 export interface StoredJourney {
   id: string;
-  destination: string;
-  budget: number;
-  travelers: number;
-  style: string;
+  destination: string; // Comma or dot-separated string for compatibility, e.g. "MUMBAI · GOA · JAIPUR"
+  budget: number; // For compatibility
+  travelers: number; // For compatibility
+  style: string; // For compatibility
   createdAt: string;
   status: 'Planning' | 'Upcoming' | 'Completed';
+  
+  // Expanded fields for the "Plan a New Journey" flow
+  destinations?: DestinationInfo[];
+  startDate?: string;
+  endDate?: string;
+  datesDecided?: boolean;
+  travellersBreakdown?: {
+    adults: number;
+    children: number;
+  };
+  budgetValue?: {
+    amount: number | null;
+    label: string; // e.g. "₹50,000" or "I'll decide later"
+  };
+  interests?: string[];
+  pace?: string;
+  itinerary?: ItineraryDay[];
+  coverImage?: string;
 }
 
 export interface StoredNotification {
@@ -36,7 +63,14 @@ export const travelStorage = {
   getJourneys: (): StoredJourney[] => read<StoredJourney[]>(JOURNEYS_KEY, []),
   saveJourney: (journey: StoredJourney) => {
     const journeys = travelStorage.getJourneys();
-    write(JOURNEYS_KEY, [journey, ...journeys]);
+    // Check if journey already exists (for editing)
+    const existsIndex = journeys.findIndex(j => j.id === journey.id);
+    if (existsIndex > -1) {
+      journeys[existsIndex] = journey;
+      write(JOURNEYS_KEY, journeys);
+    } else {
+      write(JOURNEYS_KEY, [journey, ...journeys]);
+    }
   },
   getNotifications: (): StoredNotification[] => read<StoredNotification[]>(NOTIFICATIONS_KEY, []),
   addNotification: (notification: StoredNotification) => {
