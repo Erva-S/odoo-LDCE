@@ -252,3 +252,30 @@ INSERT INTO activity_styles (activity_id, style_tag) VALUES
 (35, 'culture'), (35, 'heritage'),
 (36, 'food'), (36, 'luxury'),
 (37, 'adventure'), (37, 'nature');
+
+-- --------------------------------------------------------------------
+-- 9. TRANSIT BOOKINGS TABLE (Train & Bus bookings)
+-- Holds booking tickets, carrier info, PNR details, and scheduled times
+-- --------------------------------------------------------------------
+CREATE TABLE transit_bookings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    journey_id UUID REFERENCES journeys(id) ON DELETE CASCADE,
+    booking_type VARCHAR(10) CHECK (booking_type IN ('TRAIN', 'BUS')) NOT NULL,
+    pnr_number VARCHAR(50) NOT NULL, -- Passenger Name Record / Reference Number
+    operator_name VARCHAR(100) NOT NULL, -- e.g., "Indian Railways", "Vande Bharat Express", "KSRTC"
+    service_number VARCHAR(50) NOT NULL,  -- Train/Bus Service Number (e.g., "22223")
+    departure_location VARCHAR(150) NOT NULL,
+    arrival_location VARCHAR(150) NOT NULL,
+    departure_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    arrival_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    class_code VARCHAR(30) NOT NULL, -- e.g., "AC Chair Car (CC)", "AC Sleeper (2A)", "Scania Multi-Axle AC"
+    coach_number VARCHAR(10),       -- Coach/Platform indicator (e.g., "C3")
+    seat_numbers VARCHAR(100),       -- Comma-separated seat layout (e.g., "12, 14")
+    ticket_status VARCHAR(20) DEFAULT 'CONFIRMED' CHECK (ticket_status IN ('CONFIRMED', 'RAC', 'WAITLISTED', 'CANCELLED')),
+    fare_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for speedy booking retrieval relative to journey
+CREATE INDEX idx_transit_bookings_journey ON transit_bookings(journey_id);
+
