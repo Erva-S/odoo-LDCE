@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
-import { VideoBackground } from './components/VideoBackground';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 import { JourneyPlanner } from './components/dashboard/JourneyPlanner';
 import { JourneyDetail } from './components/dashboard/JourneyDetail';
+import { CinematicHeroSection } from './components/cinematic/CinematicHeroSection';
 
 export function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
@@ -34,6 +32,28 @@ export function App() {
 
   // Render correct view based on path
   const renderPathView = () => {
+    if (currentPath === '/wander' || currentView === 'landing') {
+      return (
+        <div className="animate-fade-rise">
+          <CinematicHeroSection
+            onStartPlanning={() => {
+              setCurrentView('dashboard');
+              navigate('/');
+            }}
+            onNavigateTab={(tab) => {
+              if (tab === 'plan') {
+                setCurrentView('dashboard');
+                navigate('/planner/new');
+              } else {
+                setCurrentView('dashboard');
+                navigate('/');
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
     if (currentPath === '/planner/new') {
       return (
         <div className="animate-fade-rise">
@@ -50,22 +70,8 @@ export function App() {
       );
     }
 
-    // Default to main home page
-    return currentView === 'landing' ? (
-      <main className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-white selection:bg-black selection:text-white animate-fade-rise">
-        {/* Background Video Layer with Gradients */}
-        <VideoBackground />
-
-        {/* Navigation Bar */}
-        <Navbar onBeginJourney={() => setCurrentView('dashboard')} />
-
-        {/* Hero Section centered in the dashboard */}
-        <HeroSection onBeginJourney={() => setCurrentView('dashboard')} />
-
-        {/* Spacer to perfectly balance the navbar height on desktop */}
-        <div className="hidden md:block h-[88px] pointer-events-none" />
-      </main>
-    ) : (
+    // Default to main dashboard home page
+    return (
       <div className="animate-fade-rise">
         <DashboardPage 
           onGoToLanding={() => setCurrentView('landing')} 
