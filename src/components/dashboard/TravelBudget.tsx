@@ -1,27 +1,28 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Sparkles, TrendingDown } from 'lucide-react';
-
-interface ExpenseCategory {
-  name: string;
-  amount: number;
-  sharePercent: number;
-  note: string;
-}
-
-const EXPENSES: ExpenseCategory[] = [
-  { name: 'Hotels & Villas', amount: 21000, sharePercent: 38, note: '3 heritage boutique stays' },
-  { name: 'Transport & Rail', amount: 12500, sharePercent: 23, note: 'Flights, train & private transfers' },
-  { name: 'Food & Dining', amount: 9500, sharePercent: 17, note: 'Fine dining & beach shacks' },
-  { name: 'Activities & Tours', amount: 7200, sharePercent: 13, note: 'Catamaran, fort pass & guide' },
-  { name: 'Other / Buffer', amount: 4600, sharePercent: 9, note: 'Souvenirs & local tips' },
-];
 
 export const TravelBudget = () => {
   const [showOptimization, setShowOptimization] = useState(false);
-  const totalBudget = 60000;
-  const estimatedCost = 54800;
+  const [totalBudget, setTotalBudget] = useState(60000);
+  const [travelers, setTravelers] = useState(4);
+  const [duration, setDuration] = useState(10);
+  const [accommodation, setAccommodation] = useState(1);
+  const [food, setFood] = useState(1);
+  const [transport, setTransport] = useState(1);
+  const [activities, setActivities] = useState(1);
+  const expenses = useMemo(() => {
+    const multiplier = Math.max(1, travelers / 4) * Math.max(1, duration / 10);
+    return [
+      { name: 'Hotels & Villas', amount: Math.round(21000 * multiplier * accommodation), note: 'Accommodation level and trip duration' },
+      { name: 'Transport & Rail', amount: Math.round(12500 * multiplier * transport), note: 'Flights, train and local transfers' },
+      { name: 'Food & Dining', amount: Math.round(9500 * multiplier * food), note: 'Daily meals and dining preference' },
+      { name: 'Activities & Tours', amount: Math.round(7200 * multiplier * activities), note: 'Tours, tickets and experiences' },
+      { name: 'Other / Buffer', amount: Math.round(4600 * multiplier), note: 'Souvenirs, fees and contingency' },
+    ];
+  }, [activities, accommodation, duration, food, transport, travelers]);
+  const estimatedCost = expenses.reduce((sum, item) => sum + item.amount, 0);
   const remainingBudget = totalBudget - estimatedCost;
-  const percentageUsed = Math.round((estimatedCost / totalBudget) * 100);
+  const percentageUsed = Math.round((estimatedCost / Math.max(1, totalBudget)) * 100);
 
   return (
     <section id="budget" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20 border-t border-[#E7E5E2]">
@@ -34,7 +35,7 @@ export const TravelBudget = () => {
             Your journey, at a glance.
           </h2>
           <p className="font-inter text-sm sm:text-base text-[#6F6F6F] mt-4 max-w-lg">
-            Monochrome, transparent tracking with zero noise or distracting pie charts.
+            Shape the estimate around your group, pace, and comfort level before you commit.
           </p>
         </div>
 
@@ -51,6 +52,29 @@ export const TravelBudget = () => {
 
       {/* Main Budget Card */}
       <div className="bg-white border border-[#E7E5E2] rounded-3xl p-8 sm:p-10 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 pb-8 border-b border-[#E7E5E2]">
+          <label className="text-[11px] font-mono text-[#6F6F6F] uppercase">Budget
+            <input type="number" min="0" value={totalBudget} onChange={(event) => setTotalBudget(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-[#E7E5E2] px-3 py-2 text-sm text-black" />
+          </label>
+          <label className="text-[11px] font-mono text-[#6F6F6F] uppercase">Travelers
+            <input type="number" min="1" value={travelers} onChange={(event) => setTravelers(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-[#E7E5E2] px-3 py-2 text-sm text-black" />
+          </label>
+          <label className="text-[11px] font-mono text-[#6F6F6F] uppercase">Days
+            <input type="number" min="1" value={duration} onChange={(event) => setDuration(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-[#E7E5E2] px-3 py-2 text-sm text-black" />
+          </label>
+          {[
+            ['Stay', accommodation, setAccommodation],
+            ['Food', food, setFood],
+            ['Transit', transport, setTransport],
+            ['Activities', activities, setActivities],
+          ].map(([label, value, setter]) => (
+            <label key={label as string} className="text-[11px] font-mono text-[#6F6F6F] uppercase">{label as string}
+              <select value={value as number} onChange={(event) => (setter as React.Dispatch<React.SetStateAction<number>>)(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-[#E7E5E2] px-2 py-2 text-sm text-black">
+                <option value="0.75">Value</option><option value="1">Balanced</option><option value="1.35">Premium</option>
+              </select>
+            </label>
+          ))}
+        </div>
         {/* Top Summary Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pb-8 border-b border-[#E7E5E2]">
           <div>
@@ -91,17 +115,22 @@ export const TravelBudget = () => {
             <span>{percentageUsed}% OF ₹{totalBudget.toLocaleString()}</span>
           </div>
           <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden flex p-0.5 gap-1 border border-[#E7E5E2]">
-            <div style={{ width: '38%' }} className="h-full bg-neutral-900 rounded-sm" title="Hotels: 38%" />
-            <div style={{ width: '23%' }} className="h-full bg-neutral-700 rounded-sm" title="Transport: 23%" />
-            <div style={{ width: '17%' }} className="h-full bg-neutral-500 rounded-sm" title="Food: 17%" />
-            <div style={{ width: '13%' }} className="h-full bg-neutral-400 rounded-sm" title="Activities: 13%" />
-            <div style={{ width: '9%' }} className="h-full bg-neutral-300 rounded-sm" title="Other: 9%" />
+            {expenses.map((item, index) => (
+              <div
+                key={item.name}
+                style={{ width: `${(item.amount / Math.max(1, estimatedCost)) * 100}%` }}
+                className={`h-full rounded-sm ${['bg-neutral-900', 'bg-neutral-700', 'bg-neutral-500', 'bg-neutral-400', 'bg-neutral-300'][index]}`}
+                title={`${item.name}: ${Math.round((item.amount / Math.max(1, estimatedCost)) * 100)}%`}
+              />
+            ))}
           </div>
         </div>
 
         {/* Category Breakdown Rows */}
         <div className="space-y-4 pt-2">
-          {EXPENSES.map((item, idx) => (
+          {expenses.map((item, idx) => {
+            const sharePercent = Math.round((item.amount / estimatedCost) * 100);
+            return (
             <div
               key={idx}
               className="flex items-center justify-between py-3 border-b border-neutral-100 last:border-0 hover:bg-neutral-50/50 px-2 rounded-lg transition-colors"
@@ -120,10 +149,17 @@ export const TravelBudget = () => {
                 <span className="font-mono text-sm font-medium text-[#000000] block">
                   ₹{item.amount.toLocaleString()}
                 </span>
-                <span className="text-[11px] font-mono text-[#6F6F6F]">{item.sharePercent}% share</span>
+                <span className="text-[11px] font-mono text-[#6F6F6F]">{sharePercent}% share</span>
               </div>
             </div>
-          ))}
+            );
+          })}
+        </div>
+
+        <div className={`mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono ${remainingBudget < 0 ? 'text-red-700' : 'text-emerald-800'}`}>
+          <span>PER PERSON: ₹{Math.round(estimatedCost / Math.max(1, travelers)).toLocaleString()}</span>
+          <span>PER DAY: ₹{Math.round(estimatedCost / Math.max(1, duration)).toLocaleString()}</span>
+          <span>{remainingBudget < 0 ? `OVER BUDGET BY ₹${Math.abs(remainingBudget).toLocaleString()}` : `WITHIN BUDGET BY ₹${remainingBudget.toLocaleString()}`}</span>
         </div>
 
         {/* AI Suggestions Box when toggled */}
