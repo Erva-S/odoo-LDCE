@@ -234,9 +234,9 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
             PLANNING MODE (Trip Studio & Future Explorations)
         ========================================================================= */
         <div className="animate-fade-rise">
-          {/* 4. Dashboard Hero Greeting with Train Hover Animation and Modal Trigger */}
+          {/* 4. Dashboard Hero Greeting with Train Hover Animation and Direct Planner Navigation */}
           <DashboardHero
-            onPlanNew={() => setIsCreateModalOpen(true)}
+            onPlanNew={() => onNavigate('/planner/new')}
             onExplore={() => scrollToSection('discovery')}
           />
 
