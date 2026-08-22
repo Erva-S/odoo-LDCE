@@ -16,19 +16,24 @@ const SMART_ALERTS: Suggestion[] = [
     icon: Clock,
     tag: 'DEPARTURE ADVISORY',
     text: 'Your next stop at Fort Aguada starts in 45 minutes. Leave Panaji by 15:05 to arrive comfortably before parking queues.',
-    actionText: 'Request Ride (14 min away)',
+    actionText: 'Get Directions to Fort Aguada (14 min)',
+    actionType: 'directions_aguada',
   },
   {
     id: '2',
     icon: Compass,
     tag: 'PROXIMITY INSIGHT',
     text: 'You are 2.1 km from your hotel in Panaji. Estimated return transit time is 8 minutes.',
+    actionText: 'Get Directions to Hotel (8 min)',
+    actionType: 'directions_hotel',
   },
   {
     id: '3',
     icon: CloudSun,
     tag: 'MICROCLIMATE UPDATE',
     text: 'Golden hour visibility at Anjuna is projected at 98% with low coastal fog. Ideal for sunset photography.',
+    actionText: 'Get Directions to Sunset Point',
+    actionType: 'directions_anjuna',
   },
 ];
 
@@ -86,7 +91,18 @@ export const SmartTravelSuggestions = ({ onActionClick }: SmartTravelSuggestions
                 <div className="pt-4 mt-2 border-t border-neutral-200/60">
                   <button
                     type="button"
-                    onClick={() => onActionClick && onActionClick('request_ride')}
+                    onClick={() => {
+                      if (onActionClick && alert.actionType) {
+                        onActionClick(alert.actionType);
+                      }
+                      const destinationMap: Record<string, string> = {
+                        directions_aguada: 'Fort Aguada, Candolim, Goa, India',
+                        directions_hotel: 'Fontainhas Heritage Villa, Panaji, Goa, India',
+                        directions_anjuna: 'Sunset Point, South Anjuna, Goa, India',
+                      };
+                      const target = destinationMap[alert.actionType || ''] || 'Goa, India';
+                      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(target)}`, '_blank');
+                    }}
                     className="text-xs font-medium text-[#000000] hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <span>{alert.actionText} →</span>
