@@ -30,6 +30,7 @@ import { InternationalJourney } from '../planner/InternationalJourney';
 
 interface DashboardPageProps {
   onGoToLanding: () => void;
+  onNavigate: (path: string) => void;
 }
 
 export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {

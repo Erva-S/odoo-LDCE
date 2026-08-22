@@ -12,6 +12,11 @@ interface JourneyItem {
   tagline: string;
 }
 
+interface MyJourneysSectionProps {
+  additionalJourneys?: JourneyItem[];
+  onSelectJourney?: (id: string) => void;
+}
+
 const JOURNEYS: JourneyItem[] = [
   {
     id: '1',
@@ -55,12 +60,13 @@ const JOURNEYS: JourneyItem[] = [
   },
 ];
 
-export const MyJourneysSection = () => {
+export const MyJourneysSection = ({ additionalJourneys = [], onSelectJourney }: MyJourneysSectionProps) => {
   const [filter, setFilter] = useState<'All' | 'Upcoming' | 'Planning'>('All');
+  const journeys = [...additionalJourneys, ...JOURNEYS];
 
   const filteredJourneys = filter === 'All' 
-    ? JOURNEYS 
-    : JOURNEYS.filter(j => j.status === filter);
+    ? journeys 
+    : journeys.filter(j => j.status === filter);
 
   return (
     <section id="journeys" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-16 border-t border-[#E7E5E2]">
@@ -111,6 +117,7 @@ export const MyJourneysSection = () => {
         {filteredJourneys.map((journey) => (
           <div
             key={journey.id}
+            onClick={() => onSelectJourney && onSelectJourney(journey.id)}
             className="group relative bg-white rounded-2xl overflow-hidden border border-[#E7E5E2] card-hover-effect flex flex-col justify-between cursor-pointer"
           >
             {/* Image Container with Editorial Aspect Ratio */}
