@@ -239,10 +239,10 @@ export const LumoraTrainExperience = ({
             how to protect your presence and create with intention.
           </p>
 
-          {/* Email / Early Access Input */}
+          {/* Plan Your Journey CTA Pill */}
           <form
             onSubmit={handleSubmitEmail}
-            className="mt-8 liquid-glass rounded-full p-1.5 flex items-center max-w-[320px] sm:max-w-md w-full shadow-lg transition-all"
+            className="mt-8 liquid-glass rounded-full p-1.5 flex items-center max-w-[340px] sm:max-w-md w-full shadow-lg transition-all"
           >
             <input
               type="email"
@@ -258,10 +258,10 @@ export const LumoraTrainExperience = ({
             />
             <button
               type="submit"
-              className="bg-white text-black font-sans font-medium text-xs sm:text-sm px-5 py-2.5 rounded-full hover:bg-neutral-200 transition-all hover:scale-[1.02] cursor-pointer shrink-0 shadow-md flex items-center gap-1.5"
+              className="bg-white text-black font-sans font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-neutral-200 transition-all hover:scale-[1.03] cursor-pointer shrink-0 shadow-md flex items-center gap-2"
               style={{ fontFamily: 'system-ui, sans-serif' }}
             >
-              <span>Get Early Access</span>
+              <span>Plan Your Journey</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </form>
