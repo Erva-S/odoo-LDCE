@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import { Sparkles, ArrowRight, Check, SlidersHorizontal } from 'lucide-react';
+import { callAetheraAI } from '../../services/aiService';
+
+interface AIPlannerSectionProps {
+  onOpenPlan?: (id?: string) => void;
+}
 
 const SUGGESTED_PROMPTS = [
   'Plan a 10-day trip through Goa and Mumbai for four people under ₹60,000.',
@@ -8,7 +13,7 @@ const SUGGESTED_PROMPTS = [
   'Weekend gastronomy tour across Mumbai and coastal Alibaug villas.',
 ];
 
-export const AIPlannerSection = () => {
+export const AIPlannerSection = ({ onOpenPlan }: AIPlannerSectionProps) => {
   const [prompt, setPrompt] = useState(
     'Plan a 10-day trip through Goa and Mumbai for four people under ₹60,000.'
   );
@@ -19,13 +24,42 @@ export const AIPlannerSection = () => {
     budgetEstimate: string;
   }>(null);
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || isGenerating) return;
 
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
+    try {
+      const aiResponse = await callAetheraAI(
+        [
+          {
+            sender: 'user',
+            text: `Please generate an editorial travel plan based on this request: "${prompt}". Format with a 2-sentence summary and 3 distinct segment highlights.`,
+          },
+        ],
+        'Editorial travel synthesis mode for Aethera luxury travel assistant.'
+      );
+
+      // Parse lines or highlights
+      const lines = aiResponse.split('\n').filter((l) => l.trim().length > 0);
+      const summary = lines.slice(0, 2).join(' ') || aiResponse.slice(0, 180) + '...';
+      const rawHighlights = lines.filter((l) => l.startsWith('•') || l.startsWith('-') || l.startsWith('*') || l.match(/^\d\./));
+      const highlights = rawHighlights.length >= 2
+        ? rawHighlights.slice(0, 3).map((h) => h.replace(/^[-•*\d.]\s*/, ''))
+        : [
+            'Bespoke arrival & heritage quarter exploration walk',
+            'Curated mid-trip signature activity & gastronomy reservations',
+            'Scenic transition & coastal/mountain viewpoint wrap-up',
+          ];
+
+      setGeneratedPlan({
+        summary,
+        highlights,
+        budgetEstimate: prompt.includes('₹')
+          ? prompt.match(/₹[\d,]+/)?.[0] + ' optimized target'
+          : '₹54,800 total estimated allocation',
+      });
+    } catch {
       setGeneratedPlan({
         summary:
           '10-day architectural and coastal expedition curated for 4 travelers balancing heritage villas in Old Goa with seaside stays in Anjuna and South Mumbai colonial galleries.',
@@ -36,7 +70,9 @@ export const AIPlannerSection = () => {
         ],
         budgetEstimate: '₹54,800 total estimated (saving ₹5,200 under ₹60,000 cap)',
       });
-    }, 1500);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -141,13 +177,14 @@ export const AIPlannerSection = () => {
               </div>
 
               <div className="flex items-center gap-4 pt-2">
-                <a
-                  href="#itinerary"
-                  className="flex items-center gap-2 rounded-full px-6 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02]"
+                <button
+                  type="button"
+                  onClick={() => onOpenPlan && onOpenPlan('1')}
+                  className="flex items-center gap-2 rounded-full px-6 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <span>Open in Workspace</span>
                   <ArrowRight className="w-3 h-3" />
-                </a>
+                </button>
               </div>
             </div>
           )}
