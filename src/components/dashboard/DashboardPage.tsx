@@ -280,7 +280,13 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
 
           {/* 13. Interactive Journey Map */}
           <JourneyMap
-            onSelectCity={(city) => setSelectedDestinationName(city)}
+            onSelectCity={(city, journeyId) => {
+              if (journeyId) {
+                onNavigate(`/journey/${journeyId}`);
+              } else {
+                setSelectedDestinationName(city);
+              }
+            }}
             onOpenLiveMap={() => setTripMode('live')}
           />
 

@@ -4,6 +4,7 @@ import { MapPin, ArrowRight } from 'lucide-react';
 interface StopDetail {
   city: string;
   code: string;
+  journeyId?: string;
   days: string;
   activities: number;
   cost: string;
@@ -13,7 +14,7 @@ interface StopDetail {
 }
 
 interface JourneyMapProps {
-  onSelectCity?: (city: string) => void;
+  onSelectCity?: (city: string, journeyId?: string) => void;
   onOpenLiveMap?: () => void;
 }
 
@@ -21,6 +22,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Chennai',
     code: 'MAA',
+    journeyId: 'chennai',
     days: 'Departure Point',
     activities: 1,
     cost: '₹7,000',
@@ -31,6 +33,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Goa',
     code: 'GOI',
+    journeyId: '1',
     days: '3 Days',
     activities: 6,
     cost: '₹12,500',
@@ -41,6 +44,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Mumbai',
     code: 'BOM',
+    journeyId: 'mumbai',
     days: '3 Days',
     activities: 4,
     cost: '₹16,800',
@@ -51,6 +55,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Delhi',
     code: 'DEL',
+    journeyId: 'delhi',
     days: '4 Days',
     activities: 5,
     cost: '₹18,500',
@@ -65,7 +70,7 @@ export const JourneyMap = ({ onSelectCity, onOpenLiveMap }: JourneyMapProps) => 
 
   const handleExplore = () => {
     if (onSelectCity) {
-      onSelectCity(selectedStop.city);
+      onSelectCity(selectedStop.city, selectedStop.journeyId);
     } else if (onOpenLiveMap) {
       onOpenLiveMap();
     }
@@ -91,6 +96,7 @@ export const JourneyMap = ({ onSelectCity, onOpenLiveMap }: JourneyMapProps) => 
           {ROUTE_STOPS.map((s, idx) => (
             <div key={s.code} className="flex items-center gap-2 shrink-0">
               <button
+                type="button"
                 onClick={() => setSelectedStop(s)}
                 className={`transition-colors cursor-pointer ${
                   selectedStop.code === s.code
@@ -207,7 +213,7 @@ export const JourneyMap = ({ onSelectCity, onOpenLiveMap }: JourneyMapProps) => 
             <button
               type="button"
               onClick={handleExplore}
-              className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer shadow-sm"
             >
               <span>Explore {selectedStop.city}</span>
               <ArrowRight className="w-3.5 h-3.5" />
