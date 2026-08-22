@@ -152,7 +152,22 @@ export const TravelBudget = () => {
 
       {/* Add-expense form */}
       {showForm && (
-        <div className="mb-10 bg-[#FAF8F5] border border-[#E7E5E2] rounded-3xl p-6 sm:p-8 animate-fade-rise">
+        <div className="mb-10 bg-white border-2 border-black rounded-3xl p-6 sm:p-8 shadow-xl animate-fade-rise">
+          <div className="flex items-center justify-between pb-4 border-b border-neutral-100 mb-6">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#6F6F6F]">
+                GROUP EXPENDITURE
+              </span>
+              <h3 className="font-instrument text-2xl sm:text-3xl text-black">Record Shared Expense</h3>
+            </div>
+            <button
+              onClick={() => setShowForm(false)}
+              className="p-2 rounded-full text-[#6F6F6F] hover:text-black hover:bg-neutral-100 transition-colors cursor-pointer text-sm font-mono"
+            >
+              ✕ Close
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <label className="text-[11px] font-mono text-[#6F6F6F] uppercase sm:col-span-1">
               Amount ({currency})
@@ -163,7 +178,7 @@ export const TravelBudget = () => {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-white px-3 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-[#FAF8F5] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black font-mono"
               />
             </label>
             <label className="text-[11px] font-mono text-[#6F6F6F] uppercase">
@@ -171,7 +186,7 @@ export const TravelBudget = () => {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-white px-2 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-[#FAF8F5] px-3 py-2.5 text-sm text-black focus:outline-none focus:border-black cursor-pointer"
               >
                 {CATEGORY_ORDER.map((c) => (
                   <option key={c} value={c}>
@@ -185,7 +200,7 @@ export const TravelBudget = () => {
               <select
                 value={paidBy}
                 onChange={(e) => setPaidBy(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-white px-2 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-[#FAF8F5] px-3 py-2.5 text-sm text-black focus:outline-none focus:border-black cursor-pointer"
               >
                 {collaborators.map((c) => (
                   <option key={c.userId} value={c.userId}>
@@ -200,18 +215,18 @@ export const TravelBudget = () => {
                 type="text"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Optional"
-                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-white px-3 py-2 text-sm text-black"
+                placeholder="e.g. Fisherman's Wharf lunch"
+                className="mt-2 w-full rounded-xl border border-[#E7E5E2] bg-[#FAF8F5] px-4 py-2.5 text-sm text-black focus:outline-none focus:border-black"
               />
             </label>
           </div>
 
           {/* Split between */}
-          <div className="mt-5">
-            <span className="text-[11px] font-mono text-[#6F6F6F] uppercase block mb-2">
+          <div className="mt-6 pt-4 border-t border-neutral-100">
+            <span className="text-[11px] font-mono text-[#6F6F6F] uppercase block mb-3">
               Split between ({splitBetween.length})
             </span>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {collaborators.map((c) => {
                 const on = splitBetween.includes(c.userId);
                 return (
@@ -219,13 +234,13 @@ export const TravelBudget = () => {
                     key={c.userId}
                     type="button"
                     onClick={() => toggleSplit(c.userId)}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-all ${
+                    className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium border transition-all cursor-pointer ${
                       on
-                        ? 'bg-[#000000] text-white border-black'
-                        : 'bg-white text-[#6F6F6F] border-[#E7E5E2] hover:border-neutral-400'
+                        ? 'bg-[#000000] text-white border-black shadow-xs'
+                        : 'bg-[#FAF8F5] text-[#6F6F6F] border-[#E7E5E2] hover:border-neutral-400'
                     }`}
                   >
-                    {on && <Check className="w-3 h-3" />}
+                    {on && <Check className="w-3.5 h-3.5" />}
                     {nameFor(c.userId)}
                   </button>
                 );
@@ -233,17 +248,26 @@ export const TravelBudget = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-3">
-            <button
-              type="button"
-              disabled={!canSubmit}
-              onClick={submit}
-              className="rounded-full px-6 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Saving…' : 'Save expense'}
-            </button>
+          <div className="mt-8 flex items-center justify-between pt-4 border-t border-neutral-100">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                disabled={!canSubmit}
+                onClick={submit}
+                className="rounded-full px-8 py-3 bg-[#000000] text-white text-xs font-mono hover:bg-neutral-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-md"
+              >
+                {submitting ? 'Saving…' : '✓ Save Expense'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="text-xs font-mono text-[#6F6F6F] hover:text-black cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
             {Number(amount) > 0 && splitBetween.length > 0 && (
-              <span className="font-mono text-xs text-[#6F6F6F]">
+              <span className="font-mono text-xs text-[#000000] bg-neutral-100 px-3 py-1.5 rounded-full">
                 {formatMoney(Number(amount) / splitBetween.length, currency)} / person
               </span>
             )}
