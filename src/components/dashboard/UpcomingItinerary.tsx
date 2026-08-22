@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, MapPin, CheckCircle, Plus } from 'lucide-react';
+import { AddItineraryStopModal } from './AddItineraryStopModal';
 
 interface ItineraryEvent {
   time: string;
@@ -8,6 +9,10 @@ interface ItineraryEvent {
   category: string;
   completed?: boolean;
   notes?: string;
+}
+
+interface UpcomingItineraryProps {
+  onOpenJourney?: (id: string) => void;
 }
 
 const ITINERARY_EVENTS: ItineraryEvent[] = [
@@ -53,14 +58,19 @@ const ITINERARY_EVENTS: ItineraryEvent[] = [
   },
 ];
 
-export const UpcomingItinerary = () => {
+export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => {
   const [selectedDay, setSelectedDay] = useState('14 JUN');
   const [events, setEvents] = useState(ITINERARY_EVENTS);
+  const [isAddStopOpen, setIsAddStopOpen] = useState(false);
 
   const toggleEvent = (index: number) => {
     const updated = [...events];
     updated[index].completed = !updated[index].completed;
     setEvents(updated);
+  };
+
+  const handleAddStop = (newEvent: { time: string; title: string; location: string; category: string; notes?: string }) => {
+    setEvents([...events, { ...newEvent, completed: false }]);
   };
 
   return (
@@ -102,7 +112,7 @@ export const UpcomingItinerary = () => {
               <span className="text-[11px] font-mono uppercase text-[#6F6F6F] block">Day 3 of 10</span>
               <h3 className="font-instrument text-3xl text-[#000000] mt-1">Goa · Coastal Heritage</h3>
               <p className="text-xs text-[#6F6F6F] mt-2 font-inter">
-                5 scheduled moments · 2 dining reservations · Estimated travel time 1 hr 20 min
+                {events.length} scheduled moments · 2 dining reservations · Estimated travel time 1 hr 20 min
               </p>
             </div>
           </div>
@@ -110,6 +120,7 @@ export const UpcomingItinerary = () => {
           <div className="pt-8">
             <button
               type="button"
+              onClick={() => onOpenJourney && onOpenJourney('1')}
               className="inline-flex items-center gap-2 text-sm font-medium text-[#000000] hover:text-[#6F6F6F] transition-colors group cursor-pointer"
             >
               <span>Open full 10-day itinerary</span>
@@ -178,7 +189,8 @@ export const UpcomingItinerary = () => {
             <div className="pt-2">
               <button
                 type="button"
-                className="flex items-center gap-2 text-xs font-medium text-[#6F6F6F] hover:text-[#000000] px-3 py-2 rounded-full border border-dashed border-[#E7E5E2] hover:border-black transition-colors"
+                onClick={() => setIsAddStopOpen(true)}
+                className="flex items-center gap-2 text-xs font-medium text-[#6F6F6F] hover:text-[#000000] px-3 py-2 rounded-full border border-dashed border-[#E7E5E2] hover:border-black transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add custom stop to {selectedDay}</span>
@@ -187,6 +199,14 @@ export const UpcomingItinerary = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Custom Stop Modal */}
+      <AddItineraryStopModal
+        isOpen={isAddStopOpen}
+        onClose={() => setIsAddStopOpen(false)}
+        dayLabel={selectedDay}
+        onAddEvent={handleAddStop}
+      />
     </section>
   );
 };

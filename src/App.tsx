@@ -5,6 +5,7 @@ import { VideoBackground } from './components/VideoBackground';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 import { JourneyPlanner } from './components/dashboard/JourneyPlanner';
 import { JourneyDetail } from './components/dashboard/JourneyDetail';
+import { TripProvider } from './context/TripContext';
 
 export function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
@@ -24,9 +25,9 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Helper to parse /journey/:id route
+  // Helper to parse /journey/:id or /journeys/:id route
   const getJourneyIdFromPath = (path: string): string | null => {
-    const match = path.match(/^\/journey\/([a-zA-Z0-9-]+)/);
+    const match = path.match(/^\/(?:journey|journeys)\/([a-zA-Z0-9-]+)/);
     return match ? match[1] : null;
   };
 
@@ -34,7 +35,7 @@ export function App() {
 
   // Render correct view based on path
   const renderPathView = () => {
-    if (currentPath === '/planner/new') {
+    if (currentPath === '/planner/new' || currentPath === '/journeys/new' || currentPath === '/journeys/new/national' || currentPath === '/journeys/new/international') {
       return (
         <div className="animate-fade-rise">
           <JourneyPlanner onNavigate={navigate} />
@@ -42,7 +43,7 @@ export function App() {
       );
     }
     
-    if (journeyId) {
+    if (journeyId && journeyId !== 'new') {
       return (
         <div className="animate-fade-rise">
           <JourneyDetail journeyId={journeyId} onNavigate={navigate} />
@@ -50,7 +51,7 @@ export function App() {
       );
     }
 
-    // Default to main home page
+    // Default to main home page or dashboard
     return currentView === 'landing' ? (
       <main className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-white selection:bg-black selection:text-white animate-fade-rise">
         {/* Background Video Layer with Gradients */}
@@ -76,9 +77,11 @@ export function App() {
   };
 
   return (
-    <div className="w-full min-h-screen font-sans bg-white">
-      {renderPathView()}
-    </div>
+    <TripProvider>
+      <div className="w-full min-h-screen font-sans bg-white">
+        {renderPathView()}
+      </div>
+    </TripProvider>
   );
 }
 

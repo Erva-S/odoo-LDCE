@@ -12,6 +12,15 @@ import { TravelTogether } from './TravelTogether';
 import { DestinationDiscovery } from './DestinationDiscovery';
 import { AIAssistantDrawer } from './AIAssistantDrawer';
 import { DashboardFooter } from './DashboardFooter';
+import { ProfileDrawer } from './ProfileDrawer';
+import { JournalDrawer } from './JournalDrawer';
+import { DestinationDetailModal } from './DestinationDetailModal';
+
+// Flagship feature components (context-backed)
+import { ItineraryBoard } from './ItineraryBoard';
+import { WeatherAlertBanner } from './WeatherAlertBanner';
+import { FestivalRecommendations } from './FestivalRecommendations';
+import { TripPDFExport } from './TripPDFExport';
 
 // Live Journey Mode Components
 import { LiveJourneyHero } from '../live/LiveJourneyHero';
@@ -28,16 +37,25 @@ import { CreateJourneyModal } from '../planner/CreateJourneyModal';
 import { NationalJourney } from '../planner/NationalJourney';
 import { InternationalJourney } from '../planner/InternationalJourney';
 
+// Storage services
+import { travelStorage, StoredJourney } from '../../services/travelStorage';
+import { getOrCreateDestination } from '../../services/destinations';
+
 interface DashboardPageProps {
   onGoToLanding: () => void;
   onNavigate: (path: string) => void;
 }
 
-export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
+export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps) => {
   // Mode state: 'planning' (before trip) or 'live' (active in-destination companion)
   const [tripMode, setTripMode] = useState<'planning' | 'live'>('planning');
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [activeServiceCategory, setActiveServiceCategory] = useState<ServiceCategory | null>(null);
+
+  // Drawer / Modal states
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isJournalOpen, setIsJournalOpen] = useState(false);
+  const [selectedDestinationName, setSelectedDestinationName] = useState<string | null>(null);
 
   // Create Journey Flow states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
@@ -58,15 +76,78 @@ export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
     setActiveServiceCategory('rides');
   };
 
+  const handleSelectJourney = (id: string) => {
+    onNavigate(`/journey/${id}`);
+  };
+
+  const handleCompleteCreation = (data: any) => {
+    const newId = crypto.randomUUID ? crypto.randomUUID() : `journey_${Date.now()}`;
+    const dest = getOrCreateDestination(data.destination || 'Goa');
+
+    const newJourney: StoredJourney = {
+      id: newId,
+      destination: (data.destination || 'Goa').toUpperCase(),
+      budget: typeof data.budget === 'number' ? data.budget : 50000,
+      travelers: data.travelers || 2,
+      style: Array.isArray(data.styles) ? data.styles.join(' · ') : 'Coastal & Heritage',
+      createdAt: new Date().toISOString(),
+      status: 'Upcoming',
+      destinations: [dest],
+      startDate: data.dates?.start || '2026-06-12',
+      endDate: data.dates?.end || '2026-06-21',
+      datesDecided: !data.dates?.flexible,
+      travellersBreakdown: { adults: data.travelers || 2, children: 0 },
+      budgetValue: {
+        amount: typeof data.budget === 'number' ? data.budget : 50000,
+        label: typeof data.budget === 'string' ? data.budget : `₹${(data.budget || 50000).toLocaleString()}`,
+      },
+      interests: data.styles || ['culture', 'relaxed'],
+      pace: 'balanced',
+      coverImage: dest.image,
+      itinerary: [
+        {
+          dayNumber: 1,
+          date: 'Day 1',
+          city: dest.city,
+          activities: [
+            `Arrival and check-in at ${dest.city} haven`,
+            `Evening leisurely exploration and sunset walk`,
+            `Welcome dinner featuring local specialties`,
+          ],
+        },
+        {
+          dayNumber: 2,
+          date: 'Day 2',
+          city: dest.city,
+          activities: [
+            `Morning guided exploration of ${dest.attractions[0] || 'landmarks'}`,
+            `Afternoon scenic excursion and local artisan discovery`,
+            `Sunset dinner overlooking the waterfront`,
+          ],
+        },
+        {
+          dayNumber: 3,
+          date: 'Day 3',
+          city: dest.city,
+          activities: [
+            `Signature experience at ${dest.attractions[1] || 'heritage sites'}`,
+            `Leisurely farewell lunch and journey wrap-up`,
+          ],
+        },
+      ],
+    };
+
+    travelStorage.saveJourney(newJourney);
+    setActivePlanningJourney(null);
+    onNavigate(`/journey/${newId}`);
+  };
+
   // If user is currently in a fullscreen National or International journey planning flow:
   if (activePlanningJourney === 'national') {
     return (
       <NationalJourney
         onBackToDashboard={() => setActivePlanningJourney(null)}
-        onCompleteJourney={() => {
-          setActivePlanningJourney(null);
-          setTripMode('live');
-        }}
+        onCompleteJourney={handleCompleteCreation}
       />
     );
   }
@@ -75,10 +156,7 @@ export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
     return (
       <InternationalJourney
         onBackToDashboard={() => setActivePlanningJourney(null)}
-        onCompleteJourney={() => {
-          setActivePlanningJourney(null);
-          setTripMode('live');
-        }}
+        onCompleteJourney={handleCompleteCreation}
       />
     );
   }
@@ -88,6 +166,8 @@ export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
       {/* Top Navbar with Mode Toggle */}
       <DashboardNavbar
         onOpenAI={() => setIsAIOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenJournal={() => setIsJournalOpen(true)}
         onGoToLanding={onGoToLanding}
         onNavigateSection={scrollToSection}
         tripMode={tripMode}
@@ -104,6 +184,9 @@ export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
             onOpenMap={() => scrollToSection('live-map')}
             onOpenAI={() => setIsAIOpen(true)}
           />
+
+          {/* Weather alerts for the current city (feature G) */}
+          <WeatherAlertBanner city="Goa" className="pt-8" />
 
           {/* Proactive Smart Travel Suggestions */}
           <SmartTravelSuggestions
@@ -161,31 +244,55 @@ export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
             onContinueJourney={() => setTripMode('live')}
           />
 
+          {/* Editable, reorderable itinerary — drag to plan (feature H) */}
+          <ItineraryBoard />
+
           {/* 8. My Journeys Editorial Collection */}
-          <MyJourneysSection />
+          <MyJourneysSection onSelectJourney={handleSelectJourney} />
 
           {/* 9. Create Journey Section ("Dream somewhere new") */}
           <CreateJourneySection
-            onCreateTrip={() => setIsCreateModalOpen(true)}
+            onCreateTrip={(details) => {
+              handleCompleteCreation({
+                destination: details.destination,
+                budget: details.budget,
+                travelers: Number(details.travelers) || 2,
+                styles: [details.style],
+              });
+            }}
           />
 
           {/* 10. AI Planner ("Let AI plan the details") */}
           <AIPlannerSection />
 
           {/* 11. Upcoming Itinerary */}
-          <UpcomingItinerary />
+          <UpcomingItinerary onOpenJourney={handleSelectJourney} />
 
           {/* 12. Travel Budget (Monochrome & Editorial) */}
           <TravelBudget />
 
+          {/* Festival & event recommendations timed to the trip (feature K) */}
+          <FestivalRecommendations />
+
+          {/* Downloadable trip PDF (feature L) */}
+          <TripPDFExport variant="banner" />
+
           {/* 13. Interactive Journey Map */}
-          <JourneyMap />
+          <JourneyMap
+            onSelectCity={(city) => setSelectedDestinationName(city)}
+            onOpenLiveMap={() => setTripMode('live')}
+          />
 
           {/* 14. Travel Together Collaboration */}
-          <TravelTogether />
+          <TravelTogether
+            onOpenJourney={handleSelectJourney}
+            onNavigateSection={scrollToSection}
+          />
 
           {/* 16. Destination Discovery Magazine Showcase */}
-          <DestinationDiscovery />
+          <DestinationDiscovery
+            onSelectDestination={(name) => setSelectedDestinationName(name)}
+          />
 
           {/* Floating Planning AI Assistant */}
           <AIAssistantDrawer
@@ -211,6 +318,28 @@ export const DashboardPage = ({ onGoToLanding }: DashboardPageProps) => {
         activeCategory={activeServiceCategory}
         onClose={() => setActiveServiceCategory(null)}
         onRequestRide={handleRequestRide}
+      />
+
+      {/* User Profile & Preferences Drawer */}
+      <ProfileDrawer
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onNavigate={onNavigate}
+      />
+
+      {/* Travel Journal Drawer */}
+      <JournalDrawer
+        isOpen={isJournalOpen}
+        onClose={() => setIsJournalOpen(false)}
+      />
+
+      {/* Destination Haven Dossier Modal */}
+      <DestinationDetailModal
+        destinationName={selectedDestinationName}
+        onClose={() => setSelectedDestinationName(null)}
+        onPlanTrip={(_city) => {
+          setIsCreateModalOpen(true);
+        }}
       />
 
       {/* Editorial Footer */}

@@ -1,5 +1,9 @@
 import { ArrowUpRight } from 'lucide-react';
 
+interface DestinationDiscoveryProps {
+  onSelectDestination?: (name: string) => void;
+}
+
 const DISCOVERIES = [
   {
     number: '01',
@@ -24,7 +28,7 @@ const DISCOVERIES = [
   },
 ];
 
-export const DestinationDiscovery = () => {
+export const DestinationDiscovery = ({ onSelectDestination }: DestinationDiscoveryProps) => {
   return (
     <section id="discovery" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20 border-t border-[#E7E5E2]">
       {/* Section Header */}
@@ -81,6 +85,7 @@ export const DestinationDiscovery = () => {
               <div className="pt-2">
                 <button
                   type="button"
+                  onClick={() => onSelectDestination && onSelectDestination(item.name)}
                   className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <span>Explore {item.name}</span>

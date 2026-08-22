@@ -345,6 +345,26 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
     onNavigate('/');
   };
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Journey link copied to clipboard!');
+  };
+
+  const handleDuplicate = () => {
+    const dup = travelStorage.duplicateJourney(journey.id);
+    if (dup) {
+      alert('Journey duplicated successfully!');
+      onNavigate(`/journey/${dup.id}`);
+    }
+  };
+
+  const handleDelete = () => {
+    if (confirm(`Are you sure you want to delete "${journey.destination}"?`)) {
+      travelStorage.deleteJourney(journey.id);
+      onNavigate('/');
+    }
+  };
+
   const travelStylesList = [
     { value: 'relaxed', label: 'Relaxed' },
     { value: 'adventure', label: 'Adventure' },
@@ -359,35 +379,58 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
     { value: 'heritage', label: 'Heritage' }
   ];
 
-
-
   return (
     <div className="w-full min-h-screen bg-[#FFFFFF] text-black font-sans selection:bg-black selection:text-white pb-32">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-8 pb-5 flex items-center justify-between border-b border-subtleBorder">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-8 pb-5 flex flex-wrap items-center justify-between gap-4 border-b border-subtleBorder">
         <button
           onClick={() => onNavigate('/')}
-          className="flex items-center gap-2 text-xs font-mono text-mutedGray hover:text-black transition-colors"
+          className="flex items-center gap-2 text-xs font-mono text-mutedGray hover:text-black transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>DASHBOARD</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+          >
+            <span>Share</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDuplicate}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+          >
+            <span>Duplicate</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-200 text-red-700 hover:bg-red-50 text-xs font-mono transition-all cursor-pointer"
+          >
+            <Trash2 className="w-3 h-3" />
+            <span>Delete</span>
+          </button>
+
           <button
             onClick={() => setIsEditingParams(!isEditingParams)}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4.5 py-2 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
           >
             <Edit3 className="w-3.5 h-3.5" />
-            <span>{isEditingParams ? 'Close Editor' : 'Edit Journey'}</span>
+            <span>{isEditingParams ? 'Close Editor' : 'Edit'}</span>
           </button>
           
           <button
             onClick={handleSaveJourney}
-            className="flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-black text-white hover:opacity-90 text-xs font-medium shadow-md shadow-black/5 hover:scale-[1.02] transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-6 py-2 rounded-full bg-black text-white hover:opacity-90 text-xs font-medium shadow-md shadow-black/5 hover:scale-[1.02] transition-all cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>Save Journey</span>
+            <span>Save</span>
           </button>
         </div>
       </div>

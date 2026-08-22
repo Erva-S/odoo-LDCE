@@ -12,6 +12,11 @@ interface StopDetail {
   yPercent: number;
 }
 
+interface JourneyMapProps {
+  onSelectCity?: (city: string) => void;
+  onOpenLiveMap?: () => void;
+}
+
 const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Chennai',
@@ -55,8 +60,16 @@ const ROUTE_STOPS: StopDetail[] = [
   },
 ];
 
-export const JourneyMap = () => {
+export const JourneyMap = ({ onSelectCity, onOpenLiveMap }: JourneyMapProps) => {
   const [selectedStop, setSelectedStop] = useState<StopDetail>(ROUTE_STOPS[1]); // Goa default
+
+  const handleExplore = () => {
+    if (onSelectCity) {
+      onSelectCity(selectedStop.city);
+    } else if (onOpenLiveMap) {
+      onOpenLiveMap();
+    }
+  };
 
   return (
     <section id="map-section" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20 border-t border-[#E7E5E2]">
@@ -193,9 +206,10 @@ export const JourneyMap = () => {
 
             <button
               type="button"
+              onClick={handleExplore}
               className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
             >
-              <span>Explore map</span>
+              <span>Explore {selectedStop.city}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

@@ -3,6 +3,8 @@ import { Sparkles, User, Menu, X, ArrowLeft } from 'lucide-react';
 
 interface DashboardNavbarProps {
   onOpenAI: () => void;
+  onOpenProfile?: () => void;
+  onOpenJournal?: () => void;
   onGoToLanding?: () => void;
   onNavigateSection?: (sectionId: string) => void;
   tripMode: 'planning' | 'live';
@@ -11,6 +13,8 @@ interface DashboardNavbarProps {
 
 export const DashboardNavbar = ({
   onOpenAI,
+  onOpenProfile,
+  onOpenJournal,
   onGoToLanding,
   onNavigateSection,
   tripMode,
@@ -33,7 +37,7 @@ export const DashboardNavbar = ({
     { label: 'Explore', section: 'discovery' },
     { label: 'My Journeys', section: 'journeys' },
     { label: 'AI Planner', section: 'ai-planner' },
-    { label: 'Journal', section: 'itinerary' },
+    { label: 'Journal', section: 'journal_action' },
   ];
 
   const liveNavItems = [
@@ -49,6 +53,16 @@ export const DashboardNavbar = ({
   const handleItemClick = (label: string, section: string) => {
     setActiveItem(label);
     setMobileMenuOpen(false);
+
+    if (section === 'journal_action') {
+      if (onOpenJournal) {
+        onOpenJournal();
+      } else if (onNavigateSection) {
+        onNavigateSection('itinerary');
+      }
+      return;
+    }
+
     if (onNavigateSection) {
       onNavigateSection(section);
     }
@@ -68,7 +82,7 @@ export const DashboardNavbar = ({
           {onGoToLanding && (
             <button
               onClick={onGoToLanding}
-              className="text-[#6F6F6F] hover:text-[#000000] p-1.5 -ml-2 rounded-full hover:bg-neutral-100 transition-colors"
+              className="text-[#6F6F6F] hover:text-[#000000] p-1.5 -ml-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer"
               title="Return to Main Landing"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -138,6 +152,7 @@ export const DashboardNavbar = ({
 
           <button
             type="button"
+            onClick={onOpenProfile}
             className="flex items-center gap-2 rounded-full pl-2 pr-3 py-1.5 text-xs sm:text-sm font-medium bg-[#000000] text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
           >
             <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white uppercase font-serif">
@@ -210,16 +225,23 @@ export const DashboardNavbar = ({
             </button>
           ))}
           <div className="pt-2 flex items-center justify-between border-t border-neutral-100">
-            <div className="flex items-center gap-2 text-sm text-[#000000]">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenProfile) onOpenProfile();
+              }}
+              className="flex items-center gap-2 text-sm text-[#000000] hover:underline"
+            >
               <User className="w-4 h-4 text-[#6F6F6F]" />
-              <span>Aravind S. (Live in Goa)</span>
-            </div>
+              <span>Aravind S. (View Profile)</span>
+            </button>
             {onGoToLanding && (
               <button
                 onClick={onGoToLanding}
                 className="text-xs text-[#6F6F6F] underline"
               >
-                Back to Landing
+                Landing
               </button>
             )}
           </div>
