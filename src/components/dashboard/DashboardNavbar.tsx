@@ -36,6 +36,7 @@ export const DashboardNavbar = ({
     { label: 'Home', section: 'hero' },
     { label: 'Explore', section: 'discovery' },
     { label: 'My Journeys', section: 'journeys' },
+    { label: 'Bikes & Rail', section: 'transit-rentals' },
     { label: 'AI Planner', section: 'ai-planner' },
     { label: 'Journal', section: 'journal_action' },
   ];

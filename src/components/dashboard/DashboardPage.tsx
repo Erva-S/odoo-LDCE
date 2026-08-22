@@ -15,6 +15,7 @@ import { DashboardFooter } from './DashboardFooter';
 import { ProfileDrawer } from './ProfileDrawer';
 import { JournalDrawer } from './JournalDrawer';
 import { DestinationDetailModal } from './DestinationDetailModal';
+import { TransitRentalsSection } from './TransitRentalsSection';
 
 // Flagship feature components (context-backed)
 import { ItineraryBoard } from './ItineraryBoard';
@@ -282,6 +283,9 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
             onSelectCity={(city) => setSelectedDestinationName(city)}
             onOpenLiveMap={() => setTripMode('live')}
           />
+
+          {/* Bike & Scooter Rentals + Train Travel Dossiers */}
+          <TransitRentalsSection />
 
           {/* 14. Travel Together Collaboration */}
           <TravelTogether
