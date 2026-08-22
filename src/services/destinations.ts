@@ -179,6 +179,47 @@ export const DESTINATIONS: DestinationInfo[] = [
       { name: 'Fine dining lakeside rooftop overlooking the palace', styles: ['food', 'luxury'] },
       { name: 'Hillside drive to Sajjangarh Monsoon Palace', styles: ['adventure', 'nature'] }
     ]
+  },
+  {
+    city: 'Ladakh',
+    region: 'Ladakh',
+    country: 'India',
+    image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1200&auto=format&fit=crop',
+    lat: 34.1526,
+    lng: 77.5771,
+    xPercent: 40,
+    yPercent: 8,
+    recommendedDuration: 5,
+    styles: ['adventure', 'nature', 'photography', 'culture'],
+    budgetLevel: '$$$',
+    attractions: ['Pangong Tso Turquoise Lake', 'Thiksey & Hemis Gompas', 'Nubra Valley Sand Dunes', 'Khardung La Pass (17,982 ft)', 'Shanti Stupa'],
+    activities: [
+      { name: 'Sunrise reflection photography at Pangong Lake', styles: ['photography', 'nature'] },
+      { name: 'Monastic dawn chanting ceremony at Thiksey Gompa', styles: ['culture', 'heritage'] },
+      { name: 'Double-humped camel safari across Hunder dunes', styles: ['adventure', 'nature'] },
+      { name: 'High-altitude stargazing under Milky Way dark skies', styles: ['photography', 'luxury'] },
+      { name: 'Mountain pass crossing over Khardung La', styles: ['adventure'] }
+    ]
+  },
+  {
+    city: 'Rajasthan',
+    region: 'Rajasthan',
+    country: 'India',
+    image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=1200&auto=format&fit=crop',
+    lat: 26.9124,
+    lng: 75.7873,
+    xPercent: 35,
+    yPercent: 28,
+    recommendedDuration: 6,
+    styles: ['heritage', 'culture', 'photography', 'luxury', 'food'],
+    budgetLevel: '$$$',
+    attractions: ['Amber Fort & Sheesh Mahal', 'Udaipur Lake Palace & Pichola', 'Jodhpur Mehrangarh Fort', 'Jaisalmer Golden Sand Dunes', 'Hawa Mahal'],
+    activities: [
+      { name: 'Royal heritage palace stay & bespoke dining', styles: ['luxury', 'heritage'] },
+      { name: 'Sunset desert tent camp & traditional folk dance', styles: ['culture', 'adventure'] },
+      { name: 'Private vintage boat charter on Lake Pichola', styles: ['relaxed', 'luxury'] },
+      { name: 'Artisan textile block-printing & gem craft tour', styles: ['culture', 'photography'] }
+    ]
   }
 ];
 

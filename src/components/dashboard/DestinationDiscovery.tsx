@@ -53,7 +53,8 @@ export const DestinationDiscovery = ({ onSelectDestination }: DestinationDiscove
         {DISCOVERIES.map((item) => (
           <div
             key={item.number}
-            className="group grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white border border-[#E7E5E2] rounded-[28px] overflow-hidden p-6 sm:p-8 card-hover-effect"
+            onClick={() => onSelectDestination && onSelectDestination(item.name)}
+            className="group grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white border border-[#E7E5E2] hover:border-black rounded-[28px] overflow-hidden p-6 sm:p-8 card-hover-effect cursor-pointer transition-all shadow-xs hover:shadow-lg"
           >
             {/* Left/Top Image */}
             <div className="lg:col-span-7 h-[280px] sm:h-[360px] rounded-2xl overflow-hidden relative bg-neutral-900">
@@ -85,7 +86,10 @@ export const DestinationDiscovery = ({ onSelectDestination }: DestinationDiscove
               <div className="pt-2">
                 <button
                   type="button"
-                  onClick={() => onSelectDestination && onSelectDestination(item.name)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onSelectDestination) onSelectDestination(item.name);
+                  }}
                   className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <span>Explore {item.name}</span>
