@@ -235,30 +235,78 @@ export const JourneyPlanner = ({ onNavigate }: JourneyPlannerProps) => {
               dateStr = curDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
             }
 
-            const dayActivities: string[] = [];
+            const dayActivities: any[] = [];
             
             if (d === 0) {
-              dayActivities.push(`Arrival in ${dest.city} · Private airport transfer & boutique check-in`);
+              dayActivities.push({
+                id: crypto.randomUUID(),
+                name: `Arrival in ${dest.city}`,
+                startTime: '09:00',
+                endTime: '10:30',
+                location: dest.city,
+                description: 'Private airport transfer & boutique check-in',
+                cost: 0
+              });
               // Relaxed or photo activity
               const firstAct = activeActivitiesList.find(a => a.styles.includes('relaxed') || a.styles.includes('photography')) 
                 || activeActivitiesList[0];
-              dayActivities.push(firstAct.name);
+              dayActivities.push({
+                id: crypto.randomUUID(),
+                name: firstAct.name,
+                startTime: '11:00',
+                endTime: '13:00',
+                location: dest.city,
+                description: 'Relaxed introductory exploration matching your style.',
+                cost: 0
+              });
             } else {
               // Attractions
               const att = dest.attractions[(d - 1) % dest.attractions.length];
-              dayActivities.push(`Explore ${att} and cultural surroundings`);
+              dayActivities.push({
+                id: crypto.randomUUID(),
+                name: `Explore ${att}`,
+                startTime: '10:00',
+                endTime: '12:30',
+                location: att,
+                description: 'Visit local landmarks and cultural sites.',
+                cost: 0
+              });
               
               // Custom matched activity
               const act = activeActivitiesList[(d) % activeActivitiesList.length];
-              dayActivities.push(act.name);
+              dayActivities.push({
+                id: crypto.randomUUID(),
+                name: act.name,
+                startTime: '14:30',
+                endTime: '17:00',
+                location: dest.city,
+                description: 'Curated activity according to chosen travel style.',
+                cost: 0
+              });
             }
 
             // Transit to next destination on last day of this city
             if (d === cityDays - 1 && cityIdx < N - 1) {
               const nextCity = selectedDestinations[cityIdx + 1].city;
-              dayActivities.push(`Evening scenic transfer to ${nextCity} · Leisurely arrival check-in`);
+              dayActivities.push({
+                id: crypto.randomUUID(),
+                name: `Transfer to ${nextCity}`,
+                startTime: '18:00',
+                endTime: '20:30',
+                location: nextCity,
+                description: 'Scenic evening connection and arrival check-in.',
+                cost: 0
+              });
             } else if (d === cityDays - 1 && cityIdx === N - 1) {
-              dayActivities.push(`Leisurely departure prep · Souvenir collection & airport departure transfer`);
+              dayActivities.push({
+                id: crypto.randomUUID(),
+                name: `Departure prep & transfer`,
+                startTime: '11:00',
+                endTime: '13:30',
+                location: dest.city,
+                description: 'Souvenir collection & airport departure transfer.',
+                cost: 0
+              });
             }
 
             itinerary.push({

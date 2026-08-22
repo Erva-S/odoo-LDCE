@@ -1,24 +1,72 @@
 import { useState } from 'react';
-import { ArrowRight, Calendar, Users, MapPin, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Calendar, Users, MapPin, CheckCircle2, Share2 } from 'lucide-react';
+import { StoredJourney, UserProfile } from '../../types/collaboration';
 
 interface CurrentJourneyCardProps {
+  journey?: StoredJourney;
+  currentUser: UserProfile;
   onContinueJourney?: () => void;
+  onOpenDetails?: () => void;
+  onOpenShare?: () => void;
 }
 
-export const CurrentJourneyCard = ({ onContinueJourney }: CurrentJourneyCardProps) => {
+export const CurrentJourneyCard = ({
+  journey,
+  onContinueJourney,
+  onOpenDetails,
+  onOpenShare,
+}: CurrentJourneyCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+
+  const displayDestination = journey?.destination || 'Goa · Mumbai · Delhi';
+  const displayTitle = journey?.title || 'Western Coast & Capital Circuit';
+  const displayDates = journey?.dates || '12 JUN — 21 JUN 2026';
+  const displayTravelers = journey?.travelers || 4;
+  const displayBudget = journey?.budget || 60000;
+  const collaborators = journey?.collaborators || [];
 
   return (
     <section className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 mb-20">
       {/* Editorial Section Label */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs uppercase tracking-widest font-mono text-[#6F6F6F]">
-          YOUR CURRENT JOURNEY
-        </span>
-        <span className="text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/60 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Active Planning
-        </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-xs uppercase tracking-widest font-mono text-[#6F6F6F]">
+            YOUR ACTIVE JOURNEY
+          </span>
+          <span className="text-xs text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60 flex items-center gap-1.5 font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Live Collaboration
+          </span>
+        </div>
+
+        {/* Quick Collaborators Avatar Row & Share Trigger */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="flex -space-x-2 overflow-hidden">
+              {collaborators.slice(0, 4).map((c, idx) => (
+                <div
+                  key={idx}
+                  className="w-7 h-7 rounded-full bg-neutral-900 ring-2 ring-white text-[10px] text-white flex items-center justify-center font-serif"
+                  title={`${c.name} (${c.role})`}
+                >
+                  {c.initials}
+                </div>
+              ))}
+            </div>
+            <span className="text-xs font-mono text-[#6F6F6F] hidden md:inline">
+              {collaborators.length} collaborators
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenShare}
+            className="flex items-center gap-1.5 rounded-full px-4 py-1.5 bg-black text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer shadow-xs"
+          >
+            <Share2 className="w-3 h-3" />
+            <span>Share Trip</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Cinematic Card */}
@@ -30,8 +78,8 @@ export const CurrentJourneyCard = ({ onContinueJourney }: CurrentJourneyCardProp
         {/* Visual Cinematic Image Area (55-65% of Card) */}
         <div className="relative w-full lg:w-[62%] h-[340px] sm:h-[420px] lg:h-[480px] overflow-hidden bg-neutral-900">
           <img
-            src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1600&auto=format&fit=crop"
-            alt="Goa and coastal India sunset"
+            src={journey?.image || "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1600&auto=format&fit=crop"}
+            alt={displayDestination}
             className={`w-full h-full object-cover transition-transform duration-700 ease-out ${
               isHovered ? 'scale-[1.03]' : 'scale-100'
             }`}
@@ -42,15 +90,15 @@ export const CurrentJourneyCard = ({ onContinueJourney }: CurrentJourneyCardProp
           {/* Badge over image */}
           <div className="absolute top-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-medium text-[#000000] shadow-sm">
             <MapPin className="w-3.5 h-3.5 text-neutral-800" />
-            <span>Western Coast & Capital Circuit</span>
+            <span>{displayTitle}</span>
           </div>
 
           {/* Quick overlay info on mobile/tablet */}
           <div className="absolute bottom-6 left-6 right-6 text-white lg:hidden">
             <h3 className="font-instrument text-3xl sm:text-4xl text-white mb-1">
-              Goa · Mumbai · Delhi
+              {displayDestination}
             </h3>
-            <p className="text-xs text-white/80 font-inter">12 JUN — 21 JUN 2026 · 4 TRAVELERS</p>
+            <p className="text-xs text-white/80 font-inter">{displayDates} · {displayTravelers} TRAVELERS</p>
           </div>
         </div>
 
@@ -60,17 +108,17 @@ export const CurrentJourneyCard = ({ onContinueJourney }: CurrentJourneyCardProp
             {/* Top metadata */}
             <div className="hidden lg:flex items-center gap-4 text-xs font-mono uppercase tracking-wider text-[#6F6F6F] mb-3">
               <span className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" /> 12 JUN — 21 JUN 2026
+                <Calendar className="w-3.5 h-3.5" /> {displayDates}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" /> 4 TRAVELERS
+                <Users className="w-3.5 h-3.5" /> {displayTravelers} TRAVELERS
               </span>
             </div>
 
             {/* City Title */}
             <h2 className="hidden lg:block font-instrument text-4xl sm:text-5xl text-[#000000] leading-none mb-4">
-              Goa · Mumbai · Delhi
+              {displayDestination}
             </h2>
 
             <p className="text-sm text-[#6F6F6F] leading-relaxed mb-6 font-inter">
@@ -93,26 +141,36 @@ export const CurrentJourneyCard = ({ onContinueJourney }: CurrentJourneyCardProp
               <div>
                 <span className="block text-[11px] font-mono text-[#6F6F6F] uppercase">Budget</span>
                 <span className="font-instrument text-2xl text-[#000000]">₹54,800</span>
-                <span className="block text-[10px] text-[#6F6F6F]">of ₹60,000</span>
+                <span className="block text-[10px] text-[#6F6F6F]">of ₹{displayBudget.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          {/* CTA & Next Stop */}
-          <div className="pt-4">
-            <div className="flex items-center justify-between text-xs text-[#6F6F6F] mb-3">
+          {/* CTA & Actions */}
+          <div className="pt-4 space-y-3">
+            <div className="flex items-center justify-between text-xs text-[#6F6F6F]">
               <span>Next Checkpoint: <strong className="text-[#000000] font-medium">Baga Beach Sunset</strong></span>
-              <span className="text-neutral-400">Day 3</span>
+              <span className="text-neutral-400 font-mono">Day 3</span>
             </div>
 
-            <button
-              type="button"
-              onClick={onContinueJourney}
-              className="w-full flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium bg-[#000000] text-white hover:bg-neutral-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99] shadow-sm cursor-pointer group"
-            >
-              <span>Continue Journey</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={onOpenDetails}
+                className="flex items-center justify-center gap-1.5 rounded-full py-3 text-xs sm:text-sm font-medium bg-neutral-100 hover:bg-neutral-200 text-black border border-[#E7E5E2] transition-colors cursor-pointer"
+              >
+                <span>Workspace</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onContinueJourney}
+                className="flex items-center justify-center gap-1.5 rounded-full py-3 text-xs sm:text-sm font-medium bg-[#000000] text-white hover:bg-neutral-800 transition-all hover:scale-[1.02] active:scale-[0.99] shadow-sm cursor-pointer group"
+              >
+                <span>Itinerary</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -144,8 +202,8 @@ export const CurrentJourneyCard = ({ onContinueJourney }: CurrentJourneyCardProp
             <span className="block text-[11px] font-mono text-[#6F6F6F] uppercase">Remaining Budget</span>
             <span className="font-instrument text-2xl text-[#000000]">₹5,200</span>
           </div>
-          <span className="text-xs px-3 py-1.5 rounded-full bg-neutral-100 text-[#6F6F6F] border border-[#E7E5E2]">
-            Within Budget
+          <span className="text-xs px-3 py-1.5 rounded-full bg-neutral-100 text-[#6F6F6F] border border-[#E7E5E2] font-mono">
+            Within Target
           </span>
         </div>
       </div>

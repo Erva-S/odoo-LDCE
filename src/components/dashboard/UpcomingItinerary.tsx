@@ -9,6 +9,8 @@ interface ItineraryEvent {
   category: string;
   completed?: boolean;
   notes?: string;
+  addedBy?: string;
+  updatedAt?: string;
 }
 
 interface UpcomingItineraryProps {
@@ -23,6 +25,7 @@ const ITINERARY_EVENTS: ItineraryEvent[] = [
     category: 'Dining',
     completed: true,
     notes: 'Try warm Bebinca and artisanal pour-over coffee.',
+    addedBy: 'Aravind S.',
   },
   {
     time: '10:30',
@@ -31,6 +34,8 @@ const ITINERARY_EVENTS: ItineraryEvent[] = [
     category: 'Activity',
     completed: false,
     notes: 'Charter skipper confirmed at Jetty 4.',
+    addedBy: 'Naitri',
+    updatedAt: '2 min ago',
   },
   {
     time: '13:00',
@@ -39,6 +44,7 @@ const ITINERARY_EVENTS: ItineraryEvent[] = [
     category: 'Dining',
     completed: false,
     notes: 'Reserved outdoor table with waterfront view.',
+    addedBy: 'Meera K.',
   },
   {
     time: '15:30',
@@ -47,6 +53,7 @@ const ITINERARY_EVENTS: ItineraryEvent[] = [
     category: 'Heritage',
     completed: false,
     notes: 'Architectural walk through the Portuguese bastion.',
+    addedBy: 'Shubham',
   },
   {
     time: '18:30',
@@ -55,6 +62,7 @@ const ITINERARY_EVENTS: ItineraryEvent[] = [
     category: 'Leisure',
     completed: false,
     notes: 'Tide optimal for photography.',
+    addedBy: 'Aravind S.',
   },
 ];
 
@@ -64,9 +72,42 @@ export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => 
   const [isAddStopOpen, setIsAddStopOpen] = useState(false);
 
   const toggleEvent = (index: number) => {
+    if (!canEdit) {
+      if (onShowToast) onShowToast('You have Viewer access (Read-Only).', 'info');
+      return;
+    }
     const updated = [...events];
     updated[index].completed = !updated[index].completed;
     setEvents(updated);
+    if (onShowToast) {
+      onShowToast(
+        `${updated[index].completed ? 'Marked as completed' : 'Marked as pending'}: ${updated[index].title}`,
+        'success'
+      );
+    }
+  };
+
+  const handleAddQuickMoment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickTitle.trim()) return;
+
+    const newEv: ItineraryEvent = {
+      time: quickTime,
+      title: quickTitle.trim(),
+      location: quickLocation.trim() || 'Goa Coastal Area',
+      category: quickCategory,
+      completed: false,
+      addedBy: currentUser?.name || 'You',
+      updatedAt: 'Just now',
+    };
+
+    setEvents((prev) => [...prev, newEv].sort((a, b) => a.time.localeCompare(b.time)));
+    setQuickTitle('');
+    setQuickLocation('');
+    setShowAddQuick(false);
+    if (onShowToast) {
+      onShowToast(`Added "${newEv.title}" to ${selectedDay}!`, 'success');
+    }
   };
 
   const handleAddStop = (newEvent: { time: string; title: string; location: string; category: string; notes?: string }) => {
@@ -79,15 +120,20 @@ export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => 
         {/* Left Column: Heading & Date Picker */}
         <div className="lg:col-span-5 flex flex-col justify-between">
           <div>
-            <span className="text-xs uppercase tracking-widest font-mono text-[#6F6F6F] block mb-2">
-              DAY-BY-DAY TIMELINE
-            </span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs uppercase tracking-widest font-mono text-[#6F6F6F]">
+                DAY-BY-DAY TIMELINE
+              </span>
+              <span className="text-[10px] font-mono bg-neutral-100 px-2 py-0.5 rounded-full text-neutral-800">
+                Live Shared Schedule
+              </span>
+            </div>
             <h2 className="font-instrument text-4xl sm:text-5xl md:text-6xl text-[#000000] tracking-headline leading-none">
               What's next
             </h2>
             <p className="font-inter text-sm sm:text-base text-[#6F6F6F] mt-4 leading-relaxed max-w-md">
-              A chronological flow of your day. Designed for unhurried exploration and spontaneous
-              detours.
+              A chronological flow of your day. Co-created with your fellow travelers for unhurried
+              exploration.
             </p>
 
             {/* Date Segment Selector */}
@@ -109,7 +155,10 @@ export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => 
 
             {/* Day Overview Badge */}
             <div className="mt-8 p-6 bg-[#FAF8F5] border border-[#E7E5E2] rounded-2xl">
-              <span className="text-[11px] font-mono uppercase text-[#6F6F6F] block">Day 3 of 10</span>
+              <div className="flex items-center justify-between text-[11px] font-mono text-[#6F6F6F]">
+                <span>Day 3 of 10</span>
+                <span>{events.length} stops scheduled</span>
+              </div>
               <h3 className="font-instrument text-3xl text-[#000000] mt-1">Goa · Coastal Heritage</h3>
               <p className="text-xs text-[#6F6F6F] mt-2 font-inter">
                 {events.length} scheduled moments · 2 dining reservations · Estimated travel time 1 hr 20 min
@@ -123,7 +172,7 @@ export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => 
               onClick={() => onOpenJourney && onOpenJourney('1')}
               className="inline-flex items-center gap-2 text-sm font-medium text-[#000000] hover:text-[#6F6F6F] transition-colors group cursor-pointer"
             >
-              <span>Open full 10-day itinerary</span>
+              <span>Open full collaborative workspace</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
@@ -131,23 +180,26 @@ export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => 
 
         {/* Right Column: Clean Editorial Vertical Timeline */}
         <div className="lg:col-span-7">
-          <div className="relative pl-6 sm:pl-8 border-l border-[#E7E5E2] space-y-10">
+          <div className="relative pl-6 sm:pl-8 border-l border-[#E7E5E2] space-y-8">
             {events.map((event, idx) => (
               <div key={idx} className="relative group">
                 {/* Timeline node dot */}
                 <button
                   onClick={() => toggleEvent(idx)}
-                  className={`absolute -left-[31px] sm:-left-[39px] top-1.5 w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center cursor-pointer ${
+                  disabled={!canEdit}
+                  className={`absolute -left-[31px] sm:-left-[39px] top-1.5 w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${
                     event.completed
                       ? 'bg-[#000000] border-[#000000] text-white'
-                      : 'bg-white border-neutral-400 group-hover:border-black'
+                      : canEdit
+                      ? 'bg-white border-neutral-400 group-hover:border-black cursor-pointer'
+                      : 'bg-neutral-100 border-neutral-300 cursor-default'
                   }`}
-                  title="Click to toggle completed status"
+                  title={canEdit ? 'Click to toggle completed status' : 'Read-only'}
                 >
                   {event.completed && <CheckCircle className="w-3.5 h-3.5" />}
                 </button>
 
-                {/* Event Header: Time and Category */}
+                {/* Event Header: Time, Category, and Attribution */}
                 <div className="flex items-center justify-between gap-4 mb-1.5">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-semibold tracking-wider text-[#000000]">
@@ -158,9 +210,17 @@ export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => 
                       {event.category}
                     </span>
                   </div>
-                  {event.completed && (
-                    <span className="text-[11px] text-emerald-700 font-mono">Done</span>
-                  )}
+
+                  <div className="flex items-center gap-2">
+                    {event.addedBy && (
+                      <span className="text-[10px] font-mono text-neutral-400">
+                        Added by {event.addedBy} {event.updatedAt && `• ${event.updatedAt}`}
+                      </span>
+                    )}
+                    {event.completed && (
+                      <span className="text-[11px] text-emerald-700 font-mono">Done</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Event Details */}

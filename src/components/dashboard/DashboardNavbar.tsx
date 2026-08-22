@@ -1,28 +1,44 @@
-import { useState, useEffect } from 'react';
-import { Sparkles, User, Menu, X, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Sparkles, Menu, X, ArrowLeft, Bell, Check, ChevronDown } from 'lucide-react';
+import { DEMO_USERS, StoredNotification, UserProfile } from '../../types/collaboration';
 
 interface DashboardNavbarProps {
+  currentUser: UserProfile;
+  notifications: StoredNotification[];
   onOpenAI: () => void;
   onOpenProfile?: () => void;
   onOpenJournal?: () => void;
   onGoToLanding?: () => void;
   onNavigateSection?: (sectionId: string) => void;
-  tripMode: 'planning' | 'live';
-  onToggleTripMode: (mode: 'planning' | 'live') => void;
+  onSelectUser: (user: UserProfile) => void;
+  onMarkNotificationRead: (id: string) => void;
+  onMarkAllNotificationsRead: () => void;
+  onOpenNotificationTrip?: (tripId?: string, inviteToken?: string) => void;
 }
 
 export const DashboardNavbar = ({
+  currentUser,
+  notifications,
   onOpenAI,
   onOpenProfile,
   onOpenJournal,
   onGoToLanding,
   onNavigateSection,
-  tripMode,
-  onToggleTripMode,
+  onSelectUser,
+  onMarkNotificationRead,
+  onMarkAllNotificationsRead,
+  onOpenNotificationTrip,
 }: DashboardNavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('Home');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const notifRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,13 +48,28 @@ export const DashboardNavbar = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const planningNavItems = [
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+      if (userRef.current && !userRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const navItems = [
     { label: 'Home', section: 'hero' },
     { label: 'Explore', section: 'discovery' },
     { label: 'My Journeys', section: 'journeys' },
     { label: 'Bikes & Rail', section: 'transit-rentals' },
     { label: 'AI Planner', section: 'ai-planner' },
-    { label: 'Journal', section: 'journal_action' },
+    { label: 'Collaborate', section: 'travel-together' },
+    { label: 'Journal', section: 'itinerary' },
   ];
 
   const liveNavItems = [
@@ -73,12 +104,12 @@ export const DashboardNavbar = ({
     <header
       className={`sticky top-0 z-40 w-full transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/85 backdrop-blur-md border-b border-[#E7E5E2]/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)]'
+          ? 'bg-white/90 backdrop-blur-md border-b border-[#E7E5E2]/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)]'
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-5 sm:py-6 flex items-center justify-between">
-        {/* Left Brand Logo & Mode Badge */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
+        {/* Brand Logo */}
         <div className="flex items-center gap-4">
           {onGoToLanding && (
             <button
@@ -140,12 +171,13 @@ export const DashboardNavbar = ({
           ))}
         </nav>
 
-        {/* Right Actions: AI Assistant Pill + Profile */}
+        {/* Right Actions: AI Assistant + Notifications + User Switcher */}
         <div className="hidden sm:flex items-center space-x-3">
+          {/* AI Assistant Pill */}
           <button
             type="button"
             onClick={onOpenAI}
-            className="flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-medium bg-neutral-100 hover:bg-neutral-200 text-[#000000] border border-[#E7E5E2] transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+            className="flex items-center gap-2 rounded-full px-3.5 py-2 text-xs sm:text-sm font-medium bg-neutral-100 hover:bg-neutral-200 text-[#000000] border border-[#E7E5E2] transition-all duration-200 hover:scale-[1.02] cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#000000]" />
             <span>{tripMode === 'live' ? '✦ Travel Companion' : '✦ AI Assistant'}</span>
@@ -200,21 +232,8 @@ export const DashboardNavbar = ({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-8 pt-2 pb-6 bg-white/95 backdrop-blur-md border-b border-[#E7E5E2] flex flex-col space-y-4">
-          <div className="pb-2 border-b border-neutral-100 flex items-center justify-between">
-            <span className="text-xs font-mono uppercase text-[#6F6F6F]">Switch Workspace Mode:</span>
-            <button
-              onClick={() => {
-                onToggleTripMode(tripMode === 'live' ? 'planning' : 'live');
-                setMobileMenuOpen(false);
-              }}
-              className="text-xs font-mono font-bold text-black underline"
-            >
-              {tripMode === 'live' ? 'Go to Planning Mode →' : 'Enter Live Journey →'}
-            </button>
-          </div>
-
-          {currentNavItems.map((item) => (
+        <div className="md:hidden px-8 pt-2 pb-6 bg-white/95 backdrop-blur-md border-b border-[#E7E5E2] flex flex-col space-y-4 animate-fade-rise">
+          {navItems.map((item) => (
             <button
               key={item.label}
               onClick={() => handleItemClick(item.label, item.section)}

@@ -9,9 +9,22 @@ import { TripProvider } from './context/TripContext';
 
 import { LumoraTrainExperience } from './components/LumoraTrainExperience';
 
+import { JourneyCalendar } from './components/dashboard/JourneyCalendar';
+
 export function App() {
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  // Default to dashboard so the user immediately sees the requested travel workspace
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('join=')) {
+      return 'dashboard';
+    }
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('join=')) {
+      setCurrentView('dashboard');
+    }
+  }, []);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -54,6 +67,14 @@ export function App() {
       return (
         <div className="animate-fade-rise">
           <JourneyPlanner onNavigate={navigate} />
+        </div>
+      );
+    }
+
+    if (journeyId && currentPath.endsWith('/calendar')) {
+      return (
+        <div className="animate-fade-rise">
+          <JourneyCalendar journeyId={journeyId} onNavigate={navigate} />
         </div>
       );
     }

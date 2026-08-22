@@ -75,10 +75,14 @@ export const TravelTogether = ({ onOpenJourney, onNavigateSection }: TravelToget
                   {travelers.map((t, idx) => (
                     <div
                       key={idx}
-                      className={`inline-flex items-center justify-center w-11 h-11 rounded-full ring-2 ring-[#FAF8F5] text-xs font-serif ${t.color}`}
+                      className="inline-flex items-center justify-center w-11 h-11 rounded-full ring-2 ring-[#FAF8F5] text-xs font-serif bg-neutral-900 text-white overflow-hidden"
                       title={`${t.name} (${t.role})`}
                     >
-                      {t.initials}
+                      {t.avatar ? (
+                        <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" />
+                      ) : (
+                        t.initials
+                      )}
                     </div>
                   ))}
                   <button
@@ -100,7 +104,7 @@ export const TravelTogether = ({ onOpenJourney, onNavigateSection }: TravelToget
               </div>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => onOpenJourney && onOpenJourney('1')}
@@ -108,6 +112,14 @@ export const TravelTogether = ({ onOpenJourney, onNavigateSection }: TravelToget
               >
                 <span>Open Journey Workspace</span>
                 <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenShare}
+                className="flex items-center gap-2 rounded-full px-6 py-4 bg-white text-black border border-[#E7E5E2] text-sm font-medium hover:bg-neutral-100 transition-colors cursor-pointer"
+              >
+                <span>+ Invite Companion</span>
               </button>
             </div>
           </div>

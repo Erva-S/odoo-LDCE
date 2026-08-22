@@ -1,10 +1,20 @@
 import { DestinationInfo, getOrCreateDestination } from './destinations';
 
+export interface ActivityItem {
+  id: string;
+  name: string;
+  startTime: string; // "HH:MM" e.g., "09:00"
+  endTime: string;   // "HH:MM" e.g., "10:30"
+  location: string;
+  cost?: number;
+  description?: string;
+}
+
 export interface ItineraryDay {
   dayNumber: number;
   date: string; // e.g. "12 Jun" or "Day 1"
   city: string;
-  activities: string[];
+  activities: ActivityItem[];
 }
 
 export interface StoredJourney {
@@ -399,8 +409,46 @@ const read = <T,>(key: string, fallback: T): T => {
   }
 };
 
-const write = <T,>(key: string, value: T) => {
-  window.localStorage.setItem(key, JSON.stringify(value));
+const write = <T>(key: string, value: T) => {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+    // Trigger custom window event for instant same-tab reactive updates
+    window.dispatchEvent(new CustomEvent('aethera_storage_updated', { detail: { key } }));
+  } catch (err) {
+    console.error('Failed to write to localStorage', err);
+  }
+};
+
+const normalizeJourney = (j: StoredJourney): StoredJourney => {
+  if (!j.itinerary) return j;
+  return {
+    ...j,
+    itinerary: j.itinerary.map(day => ({
+      ...day,
+      activities: (day.activities || []).map((act: any) => {
+        if (typeof act === 'string') {
+          return {
+            id: crypto.randomUUID(),
+            name: act,
+            startTime: '09:00',
+            endTime: '10:30',
+            location: day.city || '',
+            description: '',
+            cost: 0
+          };
+        }
+        return {
+          id: act.id || crypto.randomUUID(),
+          name: act.name || '',
+          startTime: act.startTime || '09:00',
+          endTime: act.endTime || '10:30',
+          location: act.location || day.city || '',
+          description: act.description || '',
+          cost: typeof act.cost === 'number' ? act.cost : 0
+        };
+      })
+    }))
+  };
 };
 
 export const travelStorage = {
@@ -425,6 +473,69 @@ export const travelStorage = {
     } else {
       write(JOURNEYS_KEY, [journey, ...journeys]);
     }
+
+    return invitation;
+  },
+
+  getInvitationByToken: (token: string): TripInvitation | undefined => {
+    const invitations = read<TripInvitation[]>(INVITATIONS_KEY, []);
+    return invitations.find((inv) => inv.token === token);
+  },
+
+  acceptInvitation: (token: string, acceptingUser: UserProfile): StoredJourney | null => {
+    const invitations = read<TripInvitation[]>(INVITATIONS_KEY, []);
+    const invitation = invitations.find((inv) => inv.token === token);
+    if (!invitation) return null;
+
+    const journey = travelStorage.getJourneyById(invitation.tripId);
+    if (!journey) return null;
+
+    const newCollaborator: Collaborator = {
+      userId: acceptingUser.id,
+      name: acceptingUser.name,
+      email: acceptingUser.email,
+      role: invitation.role,
+      avatar: acceptingUser.avatar,
+      initials: acceptingUser.initials,
+      isOnline: true,
+      joinedAt: new Date().toISOString(),
+    };
+
+    travelStorage.addCollaborator(journey.id, newCollaborator);
+
+    // Update invitation status
+    write(
+      INVITATIONS_KEY,
+      invitations.map((inv) => (inv.token === token ? { ...inv, status: 'accepted' as const } : inv))
+    );
+
+    return travelStorage.getJourneyById(journey.id) || journey;
+  },
+
+  // Activity logging
+  logActivity: (tripId: string, action: string) => {
+    const currentUser = travelStorage.getCurrentUser();
+    const activity: TripActivity = {
+      id: crypto.randomUUID(),
+      tripId,
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userInitials: currentUser.initials,
+      userAvatar: currentUser.avatar,
+      action,
+      timestamp: new Date().toISOString(),
+      relativeTime: 'Just now',
+    };
+
+    travelStorage.updateJourney(tripId, (j) => ({
+      ...j,
+      activities: [activity, ...(j.activities || [])],
+    }));
+  },
+
+  // Notifications
+  getNotifications: (): StoredNotification[] => {
+    return read<StoredNotification[]>(NOTIFICATIONS_KEY, INITIAL_NOTIFICATIONS);
   },
   deleteJourney: (id: string) => {
     const journeys = travelStorage.getJourneys();
@@ -494,7 +605,8 @@ export const travelStorage = {
   },
 };
 
-export const parseBudget = (value: string) => {
+export const parseBudget = (value: string | number) => {
+  if (typeof value === 'number') return value;
   const parsed = Number(value.replace(/[^0-9]/g, ''));
   return Number.isFinite(parsed) ? parsed : 0;
 };
