@@ -33,6 +33,19 @@ export interface StoredJourney {
   pace?: string;
   itinerary?: ItineraryDay[];
   coverImage?: string;
+  transportation?: StoredTransportItem[];
+}
+
+export interface StoredTransportItem {
+  id: string;
+  type: 'bike' | 'flight';
+  title: string;
+  subtitle: string;
+  route: string;
+  dates: string;
+  cost: string;
+  details: string;
+  createdAt: string;
 }
 
 export interface StoredNotification {
@@ -464,6 +477,15 @@ export const travelStorage = {
   addNotification: (notification: StoredNotification) => {
     const notifications = travelStorage.getNotifications();
     write(NOTIFICATIONS_KEY, [notification, ...notifications]);
+  },
+  addTransportToJourney: (journeyId: string, item: StoredTransportItem) => {
+    const journeys = travelStorage.getJourneys();
+    const target = journeys.find((j) => j.id === journeyId);
+    if (target) {
+      const existing = target.transportation || [];
+      target.transportation = [item, ...existing];
+      travelStorage.saveJourney(target);
+    }
   },
   clearSession: () => {
     // Session logout: reset current user session tokens

@@ -15,7 +15,7 @@ import { DashboardFooter } from './DashboardFooter';
 import { ProfileDrawer } from './ProfileDrawer';
 import { JournalDrawer } from './JournalDrawer';
 import { DestinationDetailModal } from './DestinationDetailModal';
-import { TransitRentalsSection } from './TransitRentalsSection';
+import { TransportationStudio } from './TransportationStudio';
 
 // Flagship feature components (context-backed)
 import { ItineraryBoard } from './ItineraryBoard';
@@ -291,9 +291,10 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
             onOpenLiveMap={() => setTripMode('live')}
           />
 
-          {/* Bike & Scooter Rentals + Train Travel Dossiers */}
-          <TransitRentalsSection
+          {/* Transportation Studio (Decision Screen + Bike & Flight Booking Flows) */}
+          <TransportationStudio
             onOpenTrainExperience={() => onNavigate('/train')}
+            onNavigate={onNavigate}
           />
 
           {/* 14. Travel Together Collaboration */}
