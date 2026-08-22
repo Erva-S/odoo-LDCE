@@ -6,6 +6,8 @@ import { DashboardPage } from './components/dashboard/DashboardPage';
 import { JourneyPlanner } from './components/dashboard/JourneyPlanner';
 import { JourneyDetail } from './components/dashboard/JourneyDetail';
 
+import { JourneyCalendar } from './components/dashboard/JourneyCalendar';
+
 export function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -38,6 +40,14 @@ export function App() {
       return (
         <div className="animate-fade-rise">
           <JourneyPlanner onNavigate={navigate} />
+        </div>
+      );
+    }
+
+    if (journeyId && currentPath.endsWith('/calendar')) {
+      return (
+        <div className="animate-fade-rise">
+          <JourneyCalendar journeyId={journeyId} onNavigate={navigate} />
         </div>
       );
     }

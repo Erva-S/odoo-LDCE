@@ -1,10 +1,20 @@
 import { DestinationInfo } from './destinations';
 
+export interface ActivityItem {
+  id: string;
+  name: string;
+  startTime: string; // "HH:MM" e.g., "09:00"
+  endTime: string;   // "HH:MM" e.g., "10:30"
+  location: string;
+  cost?: number;
+  description?: string;
+}
+
 export interface ItineraryDay {
   dayNumber: number;
   date: string; // e.g. "12 Jun" or "Day 1"
   city: string;
-  activities: string[];
+  activities: ActivityItem[];
 }
 
 export interface StoredJourney {
@@ -59,8 +69,43 @@ const write = <T,>(key: string, value: T) => {
   window.localStorage.setItem(key, JSON.stringify(value));
 };
 
+const normalizeJourney = (j: StoredJourney): StoredJourney => {
+  if (!j.itinerary) return j;
+  return {
+    ...j,
+    itinerary: j.itinerary.map(day => ({
+      ...day,
+      activities: (day.activities || []).map((act: any) => {
+        if (typeof act === 'string') {
+          return {
+            id: crypto.randomUUID(),
+            name: act,
+            startTime: '09:00',
+            endTime: '10:30',
+            location: day.city || '',
+            description: '',
+            cost: 0
+          };
+        }
+        return {
+          id: act.id || crypto.randomUUID(),
+          name: act.name || '',
+          startTime: act.startTime || '09:00',
+          endTime: act.endTime || '10:30',
+          location: act.location || day.city || '',
+          description: act.description || '',
+          cost: typeof act.cost === 'number' ? act.cost : 0
+        };
+      })
+    }))
+  };
+};
+
 export const travelStorage = {
-  getJourneys: (): StoredJourney[] => read<StoredJourney[]>(JOURNEYS_KEY, []),
+  getJourneys: (): StoredJourney[] => {
+    const raw = read<StoredJourney[]>(JOURNEYS_KEY, []);
+    return raw.map(normalizeJourney);
+  },
   saveJourney: (journey: StoredJourney) => {
     const journeys = travelStorage.getJourneys();
     // Check if journey already exists (for editing)
