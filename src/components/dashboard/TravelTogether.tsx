@@ -1,11 +1,11 @@
 import { Plus, ArrowRight, MessageSquare, ThumbsUp, Wallet, MapPin } from 'lucide-react';
+import { Collaborator } from '../../types/collaboration';
 
-const TRAVELERS = [
-  { name: 'Aravind S.', role: 'Trip Host', initials: 'AS', color: 'bg-neutral-900 text-white' },
-  { name: 'Meera K.', role: 'Editor', initials: 'MK', color: 'bg-neutral-700 text-white' },
-  { name: 'Rohan D.', role: 'Explorer', initials: 'RD', color: 'bg-neutral-500 text-white' },
-  { name: 'Tara P.', role: 'Gastronomy Lead', initials: 'TP', color: 'bg-neutral-400 text-white' },
-];
+interface TravelTogetherProps {
+  collaborators?: Collaborator[];
+  onOpenShare?: () => void;
+  onOpenWorkspace?: () => void;
+}
 
 const COLLAB_ACTIONS = [
   { title: 'Add a place', desc: 'Drop saved villas, cafes & viewpoints into the shared workspace.', icon: MapPin },
@@ -14,7 +14,11 @@ const COLLAB_ACTIONS = [
   { title: 'Comment on plans', desc: 'Editorial annotations directly beside each hourly schedule.', icon: MessageSquare },
 ];
 
-export const TravelTogether = () => {
+export const TravelTogether = ({
+  collaborators = [],
+  onOpenShare,
+  onOpenWorkspace,
+}: TravelTogetherProps) => {
   return (
     <section id="travel-together" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20 border-t border-[#E7E5E2]">
       <div className="bg-[#FAF8F5] border border-[#E7E5E2] rounded-[32px] p-8 sm:p-14 lg:p-16">
@@ -35,17 +39,22 @@ export const TravelTogether = () => {
             <div className="mt-8 pt-8 border-t border-[#E7E5E2]">
               <div className="flex items-center gap-4">
                 <div className="flex -space-x-3 overflow-hidden">
-                  {TRAVELERS.map((t, idx) => (
+                  {collaborators.map((t, idx) => (
                     <div
                       key={idx}
-                      className={`inline-flex items-center justify-center w-11 h-11 rounded-full ring-2 ring-[#FAF8F5] text-xs font-serif ${t.color}`}
+                      className="inline-flex items-center justify-center w-11 h-11 rounded-full ring-2 ring-[#FAF8F5] text-xs font-serif bg-neutral-900 text-white overflow-hidden"
                       title={`${t.name} (${t.role})`}
                     >
-                      {t.initials}
+                      {t.avatar ? (
+                        <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" />
+                      ) : (
+                        t.initials
+                      )}
                     </div>
                   ))}
                   <button
                     type="button"
+                    onClick={onOpenShare}
                     className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white text-black border border-[#E7E5E2] hover:bg-neutral-100 ring-2 ring-[#FAF8F5] text-xs transition-colors cursor-pointer"
                     title="Invite companion"
                   >
@@ -55,20 +64,29 @@ export const TravelTogether = () => {
 
                 <div>
                   <span className="font-mono text-xs font-semibold text-[#000000] block uppercase tracking-wider">
-                    4 TRAVELERS INVITED
+                    {collaborators.length} TRAVELERS CONNECTED
                   </span>
                   <span className="text-xs text-[#6F6F6F] font-inter">Live synchronization active</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <button
                 type="button"
+                onClick={onOpenWorkspace}
                 className="flex items-center gap-2 rounded-full px-8 py-4 bg-[#000000] text-white text-sm font-medium hover:bg-neutral-800 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
               >
-                <span>Open Journey</span>
+                <span>Open Journey Workspace</span>
                 <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenShare}
+                className="flex items-center gap-2 rounded-full px-6 py-4 bg-white text-black border border-[#E7E5E2] text-sm font-medium hover:bg-neutral-100 transition-colors cursor-pointer"
+              >
+                <span>+ Invite Companion</span>
               </button>
             </div>
           </div>

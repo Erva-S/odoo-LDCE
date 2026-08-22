@@ -1,12 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { VideoBackground } from './components/VideoBackground';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 
 export function App() {
-  // Default to dashboard so the user immediately sees the requested travel workspace, with seamless landing toggle
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
+  // Default to dashboard so the user immediately sees the requested travel workspace
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('join=')) {
+      return 'dashboard';
+    }
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('join=')) {
+      setCurrentView('dashboard');
+    }
+  }, []);
 
   return (
     <div className="w-full min-h-screen font-sans bg-white">
