@@ -238,6 +238,7 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
           <DashboardHero
             onPlanNew={() => onNavigate('/planner/new')}
             onExplore={() => scrollToSection('discovery')}
+            onOpenTrain={() => onNavigate('/train')}
           />
 
           {/* 6 & 7. Current Journey Cinematic Card + Minimal Trip Status */}
@@ -291,7 +292,9 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
           />
 
           {/* Bike & Scooter Rentals + Train Travel Dossiers */}
-          <TransitRentalsSection />
+          <TransitRentalsSection
+            onOpenTrainExperience={() => onNavigate('/train')}
+          />
 
           {/* 14. Travel Together Collaboration */}
           <TravelTogether

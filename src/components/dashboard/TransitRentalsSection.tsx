@@ -142,7 +142,11 @@ const TRAIN_JOURNEYS: TrainJourney[] = [
   },
 ];
 
-export const TransitRentalsSection = () => {
+interface TransitRentalsSectionProps {
+  onOpenTrainExperience?: () => void;
+}
+
+export const TransitRentalsSection = ({ onOpenTrainExperience }: TransitRentalsSectionProps) => {
   const [activeTab, setActiveTab] = useState<'bikes' | 'trains'>('bikes');
   const [selectedBike, setSelectedBike] = useState<BikeRental | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
@@ -184,32 +188,44 @@ export const TransitRentalsSection = () => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center p-1 bg-[#FAF8F5] border border-[#E7E5E2] rounded-full self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setActiveTab('bikes')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
-              activeTab === 'bikes'
-                ? 'bg-black text-white shadow-xs'
-                : 'text-[#6F6F6F] hover:text-black'
-            }`}
-          >
-            <Bike className="w-4 h-4" />
-            <span>BIKE & SCOOTER RENTALS</span>
-          </button>
+        <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+          {onOpenTrainExperience && (
+            <button
+              type="button"
+              onClick={onOpenTrainExperience}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono bg-neutral-900 text-white hover:bg-black transition-all hover:scale-105 cursor-pointer shadow-sm"
+            >
+              <span>✦ Fullscreen Train Window (Lumora)</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('trains')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
-              activeTab === 'trains'
-                ? 'bg-black text-white shadow-xs'
-                : 'text-[#6F6F6F] hover:text-black'
-            }`}
-          >
-            <Train className="w-4 h-4" />
-            <span>TRAIN TRAVEL & SCENIC RAIL</span>
-          </button>
+          <div className="flex items-center p-1 bg-[#FAF8F5] border border-[#E7E5E2] rounded-full">
+            <button
+              type="button"
+              onClick={() => setActiveTab('bikes')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                activeTab === 'bikes'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'text-[#6F6F6F] hover:text-black'
+              }`}
+            >
+              <Bike className="w-4 h-4" />
+              <span>BIKE & SCOOTER RENTALS</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('trains')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                activeTab === 'trains'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'text-[#6F6F6F] hover:text-black'
+              }`}
+            >
+              <Train className="w-4 h-4" />
+              <span>TRAIN TRAVEL & SCENIC RAIL</span>
+            </button>
+          </div>
         </div>
       </div>
 

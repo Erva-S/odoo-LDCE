@@ -7,6 +7,8 @@ import { JourneyPlanner } from './components/dashboard/JourneyPlanner';
 import { JourneyDetail } from './components/dashboard/JourneyDetail';
 import { TripProvider } from './context/TripContext';
 
+import { LumoraTrainExperience } from './components/LumoraTrainExperience';
+
 export function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('dashboard');
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -35,6 +37,17 @@ export function App() {
 
   // Render correct view based on path
   const renderPathView = () => {
+    if (currentPath === '/train' || currentPath === '/lumora' || currentPath === '/train-experience') {
+      return (
+        <div className="animate-fade-rise">
+          <LumoraTrainExperience
+            onEnterDashboard={() => navigate('/')}
+            onNavigate={navigate}
+          />
+        </div>
+      );
+    }
+
     if (currentPath === '/planner/new' || currentPath === '/journeys/new' || currentPath === '/journeys/new/national' || currentPath === '/journeys/new/international') {
       return (
         <div className="animate-fade-rise">
