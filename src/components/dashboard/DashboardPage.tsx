@@ -198,7 +198,7 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
 
           {/* Large Live Location Map & Waypoint Route */}
           <LiveLocationMap
-            onSelectDestination={() => {
+            onRequestRide={() => {
               setActiveServiceCategory('rides');
             }}
           />

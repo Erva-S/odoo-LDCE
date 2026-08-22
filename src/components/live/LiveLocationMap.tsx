@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   MapPin,
   Navigation,
@@ -108,16 +108,32 @@ const TODAY_WAYPOINTS: Waypoint[] = [
 ];
 
 interface LiveLocationMapProps {
-  onSelectDestination?: (name: string) => void;
   onRequestRide?: (name: string) => void;
 }
 
-export const LiveLocationMap = ({ onSelectDestination, onRequestRide }: LiveLocationMapProps) => {
+export const LiveLocationMap = ({ onRequestRide }: LiveLocationMapProps) => {
   const [showPermissionDialog, setShowPermissionDialog] = useState<boolean>(false);
   const [activeWaypoint, setActiveWaypoint] = useState<Waypoint>(TODAY_WAYPOINTS[3]); // Fort Aguada
   const [userLocationName, setUserLocationName] = useState<string>('Panaji Promenade, Goa');
   const [isDirectionsModalOpen, setIsDirectionsModalOpen] = useState<boolean>(false);
   const [copiedCoords, setCopiedCoords] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDirectionsModalOpen(false);
+        setShowPermissionDialog(false);
+      }
+    };
+    if (isDirectionsModalOpen || showPermissionDialog) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isDirectionsModalOpen, showPermissionDialog]);
 
   const handleGrantPermission = () => {
     setShowPermissionDialog(false);
@@ -133,9 +149,6 @@ export const LiveLocationMap = ({ onSelectDestination, onRequestRide }: LiveLoca
 
   const handleOpenDirections = () => {
     setIsDirectionsModalOpen(true);
-    if (onSelectDestination) {
-      onSelectDestination(activeWaypoint.name);
-    }
   };
 
   const handleOpenGoogleMaps = () => {
@@ -180,7 +193,8 @@ export const LiveLocationMap = ({ onSelectDestination, onRequestRide }: LiveLoca
 
       {/* Permission & Location Config Modal */}
       {showPermissionDialog && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 -z-10" onClick={() => setShowPermissionDialog(false)} />
           <div className="bg-white border border-[#E7E5E2] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center">
             <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4 text-black">
               <MapPin className="w-6 h-6" />
@@ -214,9 +228,6 @@ export const LiveLocationMap = ({ onSelectDestination, onRequestRide }: LiveLoca
                 Cancel
               </button>
             </div>
-            <span className="block text-[11px] text-neutral-400 font-inter mt-4">
-              Only used actively while traveling. You can revoke this anytime.
-            </span>
           </div>
         </div>
       )}
@@ -364,8 +375,9 @@ export const LiveLocationMap = ({ onSelectDestination, onRequestRide }: LiveLoca
 
       {/* Turn-by-Turn Navigation & Direction Modal */}
       {isDirectionsModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-rise">
-          <div className="bg-white border border-[#E7E5E2] rounded-[32px] max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-rise">
+          <div className="fixed inset-0 -z-10" onClick={() => setIsDirectionsModalOpen(false)} />
+          <div className="bg-white border border-[#E7E5E2] rounded-[32px] max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative my-auto">
             {/* Modal Header */}
             <div className="p-6 border-b border-[#E7E5E2] bg-[#FAF8F5] flex items-center justify-between">
               <div className="flex items-center gap-3">
