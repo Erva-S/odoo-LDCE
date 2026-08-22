@@ -346,7 +346,7 @@ export const DashboardPage = ({ onGoToLanding, onNavigate }: DashboardPageProps)
         destinationName={selectedDestinationName}
         onClose={() => setSelectedDestinationName(null)}
         onPlanTrip={(_city) => {
-          setIsCreateModalOpen(true);
+          onNavigate('/planner/new');
         }}
       />
 
