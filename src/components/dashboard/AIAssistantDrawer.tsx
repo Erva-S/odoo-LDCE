@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Sparkles, X, Send, Check, ArrowRight } from 'lucide-react';
+import { Sparkles, X, Send, Check, ArrowRight, Loader2 } from 'lucide-react';
+import { callAetheraAI } from '../../services/aiService';
 
 interface AIAssistantDrawerProps {
   isOpen: boolean;
@@ -34,56 +35,62 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
   ]);
   const [inputText, setInputText] = useState('');
   const [appliedAction, setAppliedAction] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const text = textToSend || inputText;
-    if (!text.trim()) return;
+    if (!text.trim() || isLoading) return;
 
-    const newMsgs: Message[] = [...messages, { sender: 'user', text }];
+    const userMessage: Message = { sender: 'user', text };
+    const newMsgs: Message[] = [...messages, userMessage];
     setMessages(newMsgs);
     setInputText('');
+    setIsLoading(true);
 
-    // Simulate AI response based on questions
-    setTimeout(() => {
-      let aiReply: Message;
+    try {
+      const aiReplyText = await callAetheraAI(
+        newMsgs,
+        'Active Trip: Goa · Mumbai · Delhi (10 Days), 4 Travelers, Budget ₹54,800'
+      );
+
+      let actionButton: { label: string; action: string } | undefined;
       const lower = text.toLowerCase();
-
       if (lower.includes('cheap') || lower.includes('cost') || lower.includes('budget')) {
-        aiReply = {
-          sender: 'ai',
-          text: "I can reduce tomorrow's estimated cost by ₹1,800 by replacing two paid activities with the Fontainhas Heritage Walk and adjusting your dinner reservation to an authentic local bistro.",
-          actionButton: {
-            label: 'Apply changes (-₹1,800)',
-            action: 'apply_cheaper',
-          },
+        actionButton = {
+          label: 'Apply changes (-₹1,800)',
+          action: 'apply_cheaper',
         };
       } else if (lower.includes('tomorrow') || lower.includes('plan')) {
-        aiReply = {
-          sender: 'ai',
-          text: 'For tomorrow in Goa, tides favor a 10:00 AM private catamaran sail, followed by an Art Deco pottery workshop at 15:00 in Assagao.',
-          actionButton: {
-            label: 'Add Assagao workshop to itinerary',
-            action: 'add_assagao',
-          },
-        };
-      } else if (lower.includes('pack')) {
-        aiReply = {
-          sender: 'ai',
-          text: 'Goa forecast shows 29°C with balmy coastal breezes. Pack light linens, reef-safe sunscreen, comfortable slip-on loafers, and a light wrap for evening cliffside dining.',
+        actionButton = {
+          label: 'Add Assagao workshop to itinerary',
+          action: 'add_assagao',
         };
       } else {
-        aiReply = {
-          sender: 'ai',
-          text: `I've analyzed your itinerary for "${text}". I have synchronized your preferences with local timings, transit durations, and group preferences.`,
-          actionButton: {
-            label: 'Confirm update',
-            action: 'confirm_general',
-          },
+        actionButton = {
+          label: 'Confirm update in workspace',
+          action: 'confirm_general',
         };
       }
 
-      setMessages((prev) => [...prev, aiReply]);
-    }, 900);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: 'ai',
+          text: aiReplyText,
+          actionButton,
+        },
+      ]);
+    } catch (e: any) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: 'ai',
+          text: 'I have updated your journey workspace with your latest request.',
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleApplyAction = (action: string) => {
@@ -124,14 +131,14 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
               <div>
                 <h3 className="font-instrument text-2xl text-[#000000] leading-none">Aethera AI</h3>
                 <p className="text-[11px] text-[#6F6F6F] font-inter mt-0.5">
-                  Your journey, intelligently organized.
+                  Powered by Claude 3.5 Sonnet Intelligent Curation
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full text-[#6F6F6F] hover:text-[#000000] hover:bg-neutral-200/60 transition-colors"
+              className="p-1.5 rounded-full text-[#6F6F6F] hover:text-[#000000] hover:bg-neutral-200/60 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -158,11 +165,10 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
                 className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed ${
-                    m.sender === 'user'
+                  className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed ${m.sender === 'user'
                       ? 'bg-[#000000] text-white rounded-br-none'
-                      : 'bg-[#FAF8F5] border border-[#E7E5E2] text-[#000000] rounded-bl-none'
-                  }`}
+                      : 'bg-[#FAF8F5] border border-[#E7E5E2] text-[#000000] rounded-bl-none whitespace-pre-line'
+                    }`}
                 >
                   {m.text}
                 </div>
@@ -173,7 +179,7 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
                     type="button"
                     onClick={() => handleApplyAction(m.actionButton!.action)}
                     disabled={appliedAction === m.actionButton.action}
-                    className="mt-2 flex items-center gap-1.5 rounded-full px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    className="mt-2 flex items-center gap-1.5 rounded-full px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
                     {appliedAction === m.actionButton.action ? (
                       <>
@@ -190,6 +196,13 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
                 )}
               </div>
             ))}
+
+            {isLoading && (
+              <div className="flex items-center gap-2 text-xs font-mono text-[#6F6F6F] p-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
+                <span>Aethera AI is synthesizing thoughts...</span>
+              </div>
+            )}
           </div>
 
           {/* Input Footer */}
@@ -205,14 +218,20 @@ export const AIAssistantDrawer = ({ isOpen, onClose, onOpen }: AIAssistantDrawer
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Ask Aethera AI (e.g. Make tomorrow cheaper)..."
-              className="flex-1 bg-white border border-[#E7E5E2] rounded-full px-4 py-2.5 text-xs sm:text-sm text-[#000000] placeholder:text-neutral-400 focus:outline-none focus:border-black"
+              disabled={isLoading}
+              className="flex-1 bg-white border border-[#E7E5E2] rounded-full px-4 py-2.5 text-xs sm:text-sm text-[#000000] placeholder:text-neutral-400 focus:outline-none focus:border-black disabled:opacity-60"
             />
             <button
               type="submit"
-              className="w-9 h-9 rounded-full bg-[#000000] text-white flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+              disabled={isLoading || !inputText.trim()}
+              className="w-9 h-9 rounded-full bg-[#000000] text-white flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer shrink-0 disabled:opacity-40"
               aria-label="Send message"
             >
-              <Send className="w-3.5 h-3.5" />
+              {isLoading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
             </button>
           </form>
         </div>

@@ -1,13 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, MapPin, CheckCircle, Plus } from 'lucide-react';
-import { UserProfile, CollaboratorRole } from '../../types/collaboration';
-
-interface UpcomingItineraryProps {
-  currentUser?: UserProfile;
-  userRole?: CollaboratorRole;
-  onOpenWorkspace?: () => void;
-  onShowToast?: (message: string, type?: 'success' | 'info') => void;
-}
+import { AddItineraryStopModal } from './AddItineraryStopModal';
 
 interface ItineraryEvent {
   time: string;
@@ -20,7 +13,11 @@ interface ItineraryEvent {
   updatedAt?: string;
 }
 
-const INITIAL_EVENTS: ItineraryEvent[] = [
+interface UpcomingItineraryProps {
+  onOpenJourney?: (id: string) => void;
+}
+
+const ITINERARY_EVENTS: ItineraryEvent[] = [
   {
     time: '09:00',
     title: 'Breakfast & Traditional Pastries',
@@ -69,21 +66,10 @@ const INITIAL_EVENTS: ItineraryEvent[] = [
   },
 ];
 
-export const UpcomingItinerary = ({
-  currentUser,
-  userRole = 'Owner',
-  onOpenWorkspace,
-  onShowToast,
-}: UpcomingItineraryProps) => {
+export const UpcomingItinerary = ({ onOpenJourney }: UpcomingItineraryProps) => {
   const [selectedDay, setSelectedDay] = useState('14 JUN');
-  const [events, setEvents] = useState(INITIAL_EVENTS);
-  const [showAddQuick, setShowAddQuick] = useState(false);
-  const [quickTitle, setQuickTitle] = useState('');
-  const [quickLocation, setQuickLocation] = useState('');
-  const [quickTime, setQuickTime] = useState('16:00');
-  const [quickCategory, setQuickCategory] = useState('Activity');
-
-  const canEdit = userRole === 'Owner' || userRole === 'Editor';
+  const [events, setEvents] = useState(ITINERARY_EVENTS);
+  const [isAddStopOpen, setIsAddStopOpen] = useState(false);
 
   const toggleEvent = (index: number) => {
     if (!canEdit) {
@@ -122,6 +108,10 @@ export const UpcomingItinerary = ({
     if (onShowToast) {
       onShowToast(`Added "${newEv.title}" to ${selectedDay}!`, 'success');
     }
+  };
+
+  const handleAddStop = (newEvent: { time: string; title: string; location: string; category: string; notes?: string }) => {
+    setEvents([...events, { ...newEvent, completed: false }]);
   };
 
   return (
@@ -171,7 +161,7 @@ export const UpcomingItinerary = ({
               </div>
               <h3 className="font-instrument text-3xl text-[#000000] mt-1">Goa · Coastal Heritage</h3>
               <p className="text-xs text-[#6F6F6F] mt-2 font-inter">
-                Collaborative itinerary • Active editors contributing from Goa & Mumbai
+                {events.length} scheduled moments · 2 dining reservations · Estimated travel time 1 hr 20 min
               </p>
             </div>
           </div>
@@ -179,7 +169,7 @@ export const UpcomingItinerary = ({
           <div className="pt-8">
             <button
               type="button"
-              onClick={onOpenWorkspace}
+              onClick={() => onOpenJourney && onOpenJourney('1')}
               className="inline-flex items-center gap-2 text-sm font-medium text-[#000000] hover:text-[#6F6F6F] transition-colors group cursor-pointer"
             >
               <span>Open full collaborative workspace</span>
@@ -255,91 +245,28 @@ export const UpcomingItinerary = ({
               </div>
             ))}
 
-            {/* Quick Add Moment Form or Button */}
-            {canEdit ? (
-              <div className="pt-2">
-                {!showAddQuick ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowAddQuick(true)}
-                    className="flex items-center gap-2 text-xs font-medium text-[#6F6F6F] hover:text-[#000000] px-3.5 py-2 rounded-full border border-dashed border-[#E7E5E2] hover:border-black transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add custom stop to {selectedDay}</span>
-                  </button>
-                ) : (
-                  <form
-                    onSubmit={handleAddQuickMoment}
-                    className="p-4 bg-[#FAF8F5] border border-[#E7E5E2] rounded-2xl space-y-3 animate-fade-rise"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono uppercase text-black">
-                        Add Stop to {selectedDay}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setShowAddQuick(false)}
-                        className="text-xs text-neutral-400 hover:text-black"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-
-                    <input
-                      type="text"
-                      value={quickTitle}
-                      onChange={(e) => setQuickTitle(e.target.value)}
-                      placeholder="Title (e.g. Fontainhas Walking Tour)..."
-                      className="w-full bg-white border border-[#E7E5E2] rounded-xl px-3 py-2 text-xs text-black focus:outline-none focus:border-black"
-                      required
-                    />
-
-                    <div className="grid grid-cols-3 gap-2">
-                      <input
-                        type="text"
-                        value={quickLocation}
-                        onChange={(e) => setQuickLocation(e.target.value)}
-                        placeholder="Location..."
-                        className="w-full bg-white border border-[#E7E5E2] rounded-xl px-3 py-2 text-xs text-black focus:outline-none focus:border-black"
-                      />
-                      <input
-                        type="text"
-                        value={quickTime}
-                        onChange={(e) => setQuickTime(e.target.value)}
-                        placeholder="16:00"
-                        className="w-full bg-white border border-[#E7E5E2] rounded-xl px-3 py-2 text-xs text-black focus:outline-none focus:border-black font-mono"
-                      />
-                      <select
-                        value={quickCategory}
-                        onChange={(e) => setQuickCategory(e.target.value)}
-                        className="w-full bg-white border border-[#E7E5E2] rounded-xl px-2 py-2 text-xs text-black focus:outline-none focus:border-black cursor-pointer"
-                      >
-                        <option value="Activity">Activity</option>
-                        <option value="Dining">Dining</option>
-                        <option value="Heritage">Heritage</option>
-                        <option value="Leisure">Leisure</option>
-                      </select>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 pt-1">
-                      <button
-                        type="submit"
-                        className="rounded-full px-5 py-2 bg-black text-white text-xs font-medium hover:bg-neutral-800 transition-colors"
-                      >
-                        Save Moment
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            ) : (
-              <div className="pt-2 text-xs text-neutral-400 font-inter italic">
-                Viewing schedule in read-only mode as Viewer.
-              </div>
-            )}
+            {/* Quick Add Moment */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setIsAddStopOpen(true)}
+                className="flex items-center gap-2 text-xs font-medium text-[#6F6F6F] hover:text-[#000000] px-3 py-2 rounded-full border border-dashed border-[#E7E5E2] hover:border-black transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add custom stop to {selectedDay}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Add Custom Stop Modal */}
+      <AddItineraryStopModal
+        isOpen={isAddStopOpen}
+        onClose={() => setIsAddStopOpen(false)}
+        dayLabel={selectedDay}
+        onAddEvent={handleAddStop}
+      />
     </section>
   );
 };

@@ -1,9 +1,11 @@
-import { HeartHandshake, ShieldAlert, ArrowRight, Stethoscope, Car, Utensils, Hotel, Landmark, Fuel, Pill } from 'lucide-react';
+import { HeartHandshake, ShieldAlert, ArrowRight, Stethoscope, Car, Utensils, Hotel, Pill, Bike, Train } from 'lucide-react';
 
 export type ServiceCategory =
   | 'hospitals'
   | 'pharmacies'
   | 'rides'
+  | 'bikes'
+  | 'trains'
   | 'restaurants'
   | 'hotels'
   | 'atms'
@@ -16,6 +18,27 @@ interface QuickAssistanceGridProps {
 }
 
 const CATEGORIES = [
+  {
+    id: 'bikes' as ServiceCategory,
+    title: 'Bike Rentals',
+    count: 'Royal Enfield & Vespas',
+    icon: Bike,
+    badge: 'From ₹550/day',
+  },
+  {
+    id: 'trains' as ServiceCategory,
+    title: 'Scenic Trains',
+    count: 'Vande Bharat / VistaDome',
+    icon: Train,
+    badge: 'Live Rail Timings',
+  },
+  {
+    id: 'rides' as ServiceCategory,
+    title: 'Rides & Taxi',
+    count: 'Available in 3–5 min',
+    icon: Car,
+    badge: 'Uber / Ola / Local',
+  },
   {
     id: 'hospitals' as ServiceCategory,
     title: 'Hospitals',
@@ -31,13 +54,6 @@ const CATEGORIES = [
     badge: 'Open Now',
   },
   {
-    id: 'rides' as ServiceCategory,
-    title: 'Rides & Taxi',
-    count: 'Available in 3–5 min',
-    icon: Car,
-    badge: 'Uber / Ola / Local',
-  },
-  {
     id: 'restaurants' as ServiceCategory,
     title: 'Restaurants',
     count: '14 curated dining',
@@ -50,20 +66,6 @@ const CATEGORIES = [
     count: '4 boutique estates',
     icon: Hotel,
     badge: 'Within 3 km',
-  },
-  {
-    id: 'atms' as ServiceCategory,
-    title: 'ATMs & Cash',
-    count: '2 within 500m',
-    icon: Landmark,
-    badge: 'HDFC / SBI',
-  },
-  {
-    id: 'fuel' as ServiceCategory,
-    title: 'Fuel & EV',
-    count: '3 stations nearby',
-    icon: Fuel,
-    badge: 'Open 24/7',
   },
   {
     id: 'emergency' as ServiceCategory,
@@ -110,13 +112,13 @@ export const QuickAssistanceGrid = ({ onSelectCategory }: QuickAssistanceGridPro
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
         <div>
           <span className="text-xs uppercase tracking-widest font-mono text-[#6F6F6F] block mb-1">
-            LOCAL INTELLIGENCE
+            LOCAL INTELLIGENCE & TRANSIT
           </span>
           <h2 className="font-instrument text-4xl sm:text-5xl text-[#000000] tracking-headline leading-none">
             Near You
           </h2>
           <p className="text-xs sm:text-sm text-[#6F6F6F] font-inter mt-2">
-            Everything you may need, wherever the journey takes you.
+            Transit rentals, scenic trains, health facilities, and local services.
           </p>
         </div>
 

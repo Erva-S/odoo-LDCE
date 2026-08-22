@@ -4,6 +4,7 @@ import { MapPin, ArrowRight } from 'lucide-react';
 interface StopDetail {
   city: string;
   code: string;
+  journeyId?: string;
   days: string;
   activities: number;
   cost: string;
@@ -12,10 +13,16 @@ interface StopDetail {
   yPercent: number;
 }
 
+interface JourneyMapProps {
+  onSelectCity?: (city: string, journeyId?: string) => void;
+  onOpenLiveMap?: () => void;
+}
+
 const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Chennai',
     code: 'MAA',
+    journeyId: 'chennai',
     days: 'Departure Point',
     activities: 1,
     cost: '₹7,000',
@@ -26,6 +33,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Goa',
     code: 'GOI',
+    journeyId: '1',
     days: '3 Days',
     activities: 6,
     cost: '₹12,500',
@@ -36,6 +44,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Mumbai',
     code: 'BOM',
+    journeyId: 'mumbai',
     days: '3 Days',
     activities: 4,
     cost: '₹16,800',
@@ -46,6 +55,7 @@ const ROUTE_STOPS: StopDetail[] = [
   {
     city: 'Delhi',
     code: 'DEL',
+    journeyId: 'delhi',
     days: '4 Days',
     activities: 5,
     cost: '₹18,500',
@@ -55,8 +65,16 @@ const ROUTE_STOPS: StopDetail[] = [
   },
 ];
 
-export const JourneyMap = () => {
+export const JourneyMap = ({ onSelectCity, onOpenLiveMap }: JourneyMapProps) => {
   const [selectedStop, setSelectedStop] = useState<StopDetail>(ROUTE_STOPS[1]); // Goa default
+
+  const handleExplore = () => {
+    if (onSelectCity) {
+      onSelectCity(selectedStop.city, selectedStop.journeyId);
+    } else if (onOpenLiveMap) {
+      onOpenLiveMap();
+    }
+  };
 
   return (
     <section id="map-section" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20 border-t border-[#E7E5E2]">
@@ -78,6 +96,7 @@ export const JourneyMap = () => {
           {ROUTE_STOPS.map((s, idx) => (
             <div key={s.code} className="flex items-center gap-2 shrink-0">
               <button
+                type="button"
                 onClick={() => setSelectedStop(s)}
                 className={`transition-colors cursor-pointer ${
                   selectedStop.code === s.code
@@ -193,9 +212,10 @@ export const JourneyMap = () => {
 
             <button
               type="button"
-              className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
+              onClick={handleExplore}
+              className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer shadow-sm"
             >
-              <span>Explore map</span>
+              <span>Explore {selectedStop.city}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

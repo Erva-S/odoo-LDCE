@@ -1,5 +1,14 @@
-import { useState } from 'react';
-import { MapPin, Navigation, ShieldCheck, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  MapPin,
+  Navigation,
+  ShieldCheck,
+  Check,
+  ExternalLink,
+  X,
+  Car,
+  Copy,
+} from 'lucide-react';
 
 interface Waypoint {
   id: string;
@@ -11,6 +20,7 @@ interface Waypoint {
   eta: string;
   xPercent: number;
   yPercent: number;
+  steps: string[];
 }
 
 const TODAY_WAYPOINTS: Waypoint[] = [
@@ -24,6 +34,11 @@ const TODAY_WAYPOINTS: Waypoint[] = [
     eta: 'Origin',
     xPercent: 24,
     yPercent: 70,
+    steps: [
+      'Head east on Rua 31 de Janeiro toward Latin Quarter exit (300 m)',
+      'Turn right onto DB Bandodkar Marg (1.8 km)',
+      'Arrive at Panaji Waterfront Promenade on the right',
+    ],
   },
   {
     id: '2',
@@ -35,6 +50,11 @@ const TODAY_WAYPOINTS: Waypoint[] = [
     eta: '12 min',
     xPercent: 38,
     yPercent: 46,
+    steps: [
+      'Head north across Mandovi River Bridge (1.2 km)',
+      'Continue on Calangute - Baga Rd (2.2 km)',
+      'Turn right at Jetty 4 toward Baga Shoreline (400 m)',
+    ],
   },
   {
     id: '3',
@@ -46,6 +66,11 @@ const TODAY_WAYPOINTS: Waypoint[] = [
     eta: '3 min',
     xPercent: 50,
     yPercent: 62,
+    steps: [
+      'Head southwest along waterfront promenade (500 m)',
+      'Turn left at Sal River waterfront arcade (300 m)',
+      'Arrive at Fisherman’s Wharf dining pavilion on the left',
+    ],
   },
   {
     id: '4',
@@ -57,6 +82,12 @@ const TODAY_WAYPOINTS: Waypoint[] = [
     eta: '14 min',
     xPercent: 68,
     yPercent: 38,
+    steps: [
+      'Head south on Panaji Promenade toward Dayanand Bandodkar Marg (400 m)',
+      'Take the Mandovi River Bridge approach toward Betim / Candolim (1.8 km)',
+      'Continue onto Aguada-Siolim Rd toward Sinquerim Promontory (1.6 km)',
+      'Arrive at Fort Aguada 17th-Century Bastion parking on the left (400 m)',
+    ],
   },
   {
     id: '5',
@@ -68,17 +99,41 @@ const TODAY_WAYPOINTS: Waypoint[] = [
     eta: '22 min',
     xPercent: 82,
     yPercent: 25,
+    steps: [
+      'Head northeast on Aguada - Candolim Rd (2.5 km)',
+      'Follow Calangute - Anjuna Highway toward South Anjuna cliff (4.8 km)',
+      'Turn left onto Sunset Point cliff trail (500 m)',
+    ],
   },
 ];
 
 interface LiveLocationMapProps {
-  onSelectDestination?: (name: string) => void;
+  onRequestRide?: (name: string) => void;
 }
 
-export const LiveLocationMap = ({ onSelectDestination }: LiveLocationMapProps) => {
+export const LiveLocationMap = ({ onRequestRide }: LiveLocationMapProps) => {
   const [showPermissionDialog, setShowPermissionDialog] = useState<boolean>(false);
   const [activeWaypoint, setActiveWaypoint] = useState<Waypoint>(TODAY_WAYPOINTS[3]); // Fort Aguada
   const [userLocationName, setUserLocationName] = useState<string>('Panaji Promenade, Goa');
+  const [isDirectionsModalOpen, setIsDirectionsModalOpen] = useState<boolean>(false);
+  const [copiedCoords, setCopiedCoords] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDirectionsModalOpen(false);
+        setShowPermissionDialog(false);
+      }
+    };
+    if (isDirectionsModalOpen || showPermissionDialog) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isDirectionsModalOpen, showPermissionDialog]);
 
   const handleGrantPermission = () => {
     setShowPermissionDialog(false);
@@ -92,65 +147,87 @@ export const LiveLocationMap = ({ onSelectDestination }: LiveLocationMapProps) =
     }
   };
 
+  const handleOpenDirections = () => {
+    setIsDirectionsModalOpen(true);
+  };
+
+  const handleOpenGoogleMaps = () => {
+    const query = encodeURIComponent(`${activeWaypoint.name}, Goa, India`);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+  };
+
+  const handleCopyCoords = () => {
+    navigator.clipboard.writeText('15.4920° N, 73.7737° E');
+    setCopiedCoords(true);
+    setTimeout(() => setCopiedCoords(false), 2000);
+  };
+
   return (
     <section id="live-map" className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-12">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div>
           <span className="text-xs uppercase tracking-widest font-mono text-[#6F6F6F] block mb-1">
-            SPATIAL TRACKING
+            REAL-TIME SITUATIONAL RADAR
           </span>
-          <h2 className="font-instrument text-3xl sm:text-4xl md:text-5xl text-[#000000] tracking-headline leading-none">
-            Live Location & Today’s Waypoints
+          <h2 className="font-instrument text-4xl sm:text-5xl text-[#000000] tracking-headline leading-none">
+            Live Journey Radar
           </h2>
           <p className="text-xs sm:text-sm text-[#6F6F6F] font-inter mt-2">
-            Real-time tracking of your current location and scheduled itinerary nodes.
+            Active tracking along Day 4: Panaji to Candolim & North Goa Promontory.
           </p>
         </div>
 
+        {/* Location permission toggle */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setShowPermissionDialog(true)}
-            className="flex items-center gap-1.5 text-xs text-[#6F6F6F] hover:text-[#000000] bg-white border border-[#E7E5E2] px-3.5 py-1.5 rounded-full transition-colors"
+            className="flex items-center gap-2 rounded-full px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-xs font-mono text-[#000000] transition-colors border border-[#E7E5E2] cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Location Settings</span>
+            <span>GPS: High Accuracy</span>
           </button>
         </div>
       </div>
 
-      {/* Permission Request Modal Overlay if toggled */}
+      {/* Permission & Location Config Modal */}
       {showPermissionDialog && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#E7E5E2] rounded-3xl p-8 max-w-md w-full shadow-2xl text-center animate-fade-rise">
-            <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4 text-[#000000]">
-              <MapPin className="w-5 h-5" />
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 -z-10" onClick={() => setShowPermissionDialog(false)} />
+          <div className="bg-white border border-[#E7E5E2] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center">
+            <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4 text-black">
+              <MapPin className="w-6 h-6" />
             </div>
-            <h3 className="font-instrument text-3xl text-[#000000] mb-2">Use Your Location</h3>
-            <p className="text-xs sm:text-sm text-[#6F6F6F] font-inter leading-relaxed mb-6">
-              Let Aethera show what’s nearby, estimate live travel times, and help you navigate your
-              journey with zero guesswork.
+            <h3 className="font-instrument text-3xl text-black mb-2">Location Accuracy</h3>
+            <p className="text-xs sm:text-sm text-[#6F6F6F] font-inter mb-6 leading-relaxed">
+              Aethera uses real-time GPS telemetry to estimate driving durations, flag scenic
+              detours, and find nearby assistance.
             </p>
-            <div className="space-y-3">
+
+            <div className="flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={handleGrantPermission}
-                className="w-full rounded-full py-3.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
+                className="w-full rounded-full py-3 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all cursor-pointer"
               >
-                Allow Location Access
+                Enable Automatic Live Geolocation
               </button>
               <button
                 type="button"
                 onClick={handleManualLocation}
-                className="w-full rounded-full py-3 bg-neutral-100 hover:bg-neutral-200 text-xs font-medium text-[#000000] transition-colors cursor-pointer"
+                className="w-full rounded-full py-3 bg-neutral-100 text-black text-xs font-medium hover:bg-neutral-200 transition-all border border-[#E7E5E2] cursor-pointer"
               >
-                Enter Location Manually
+                Set Current City Manually
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPermissionDialog(false)}
+                className="w-full text-xs text-[#6F6F6F] hover:text-black py-2 cursor-pointer"
+              >
+                Cancel
               </button>
             </div>
-            <span className="block text-[11px] text-neutral-400 font-inter mt-4">
-              Only used actively while traveling. You can revoke this anytime.
-            </span>
           </div>
         </div>
       )}
@@ -218,23 +295,24 @@ export const LiveLocationMap = ({ onSelectDestination }: LiveLocationMapProps) =
             <div className="flex flex-col items-center">
               <div className="px-2.5 py-1 rounded-full bg-[#000000] text-white text-[10px] font-mono tracking-wider shadow-lg mb-1 whitespace-nowrap flex items-center gap-1">
                 <Navigation className="w-2.5 h-2.5 text-emerald-400 fill-emerald-400" />
-                <span>CURRENT POSITION</span>
+                <span>You (Panaji)</span>
               </div>
+              <div className="w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-white shadow-md animate-pulse" />
             </div>
           </div>
 
-          {/* Waypoint Markers */}
+          {/* Interactive Waypoints */}
           {TODAY_WAYPOINTS.map((wp) => {
             const isSelected = activeWaypoint.id === wp.id;
             return (
               <div
                 key={wp.id}
-                style={{ left: `${wp.xPercent}%`, top: `${wp.yPercent}%` }}
-                onClick={() => {
-                  setActiveWaypoint(wp);
-                  if (onSelectDestination) onSelectDestination(wp.name);
+                style={{
+                  top: `${wp.yPercent}%`,
+                  left: `${wp.xPercent}%`,
                 }}
-                className="absolute z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
+                onClick={() => setActiveWaypoint(wp)}
+                className="absolute -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer group"
               >
                 <div
                   className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -285,17 +363,121 @@ export const LiveLocationMap = ({ onSelectDestination }: LiveLocationMapProps) =
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => {
-                if (onSelectDestination) onSelectDestination(activeWaypoint.name);
-              }}
-              className="flex items-center gap-1.5 rounded-full px-6 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
+              onClick={handleOpenDirections}
+              className="flex items-center gap-1.5 rounded-full px-6 py-2.5 bg-[#000000] text-white text-xs font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer shadow-md"
             >
-              <Navigation className="w-3.5 h-3.5" />
+              <Navigation className="w-3.5 h-3.5 text-emerald-400" />
               <span>Get Directions</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* Turn-by-Turn Navigation & Direction Modal */}
+      {isDirectionsModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-rise">
+          <div className="fixed inset-0 -z-10" onClick={() => setIsDirectionsModalOpen(false)} />
+          <div className="bg-white border border-[#E7E5E2] rounded-[32px] max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative my-auto">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-[#E7E5E2] bg-[#FAF8F5] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
+                  <Navigation className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#6F6F6F]">
+                    NAVIGATION HUD · {activeWaypoint.distance}
+                  </span>
+                  <h3 className="font-instrument text-2xl sm:text-3xl text-black leading-tight">
+                    Route to {activeWaypoint.name}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDirectionsModalOpen(false)}
+                className="p-2 rounded-full text-[#6F6F6F] hover:text-black hover:bg-neutral-200/50 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+              {/* Route Summary Box */}
+              <div className="p-4 bg-[#FAF8F5] border border-[#E7E5E2] rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-[#6F6F6F] block">Drive ETA</span>
+                  <span className="font-instrument text-3xl text-black leading-none">{activeWaypoint.eta}</span>
+                  <span className="text-xs text-[#6F6F6F] font-inter mt-0.5 block">via Aguada-Candolim Rd</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-mono uppercase text-[#6F6F6F] block">Distance</span>
+                  <span className="font-instrument text-3xl text-black leading-none">{activeWaypoint.distance}</span>
+                  <span className="text-xs text-emerald-700 font-mono mt-0.5 block">Light Traffic</span>
+                </div>
+              </div>
+
+              {/* Turn-by-Turn Steps */}
+              <div>
+                <span className="text-xs font-mono uppercase text-[#6F6F6F] block mb-3">
+                  TURN-BY-TURN GUIDANCE
+                </span>
+                <div className="space-y-3">
+                  {activeWaypoint.steps.map((step, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 bg-white border border-[#E7E5E2] rounded-xl flex items-start gap-3 text-xs text-black font-inter leading-relaxed"
+                    >
+                      <span className="w-5 h-5 rounded-full bg-neutral-100 font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions Grid */}
+              <div className="pt-2 space-y-3">
+                <button
+                  type="button"
+                  onClick={handleOpenGoogleMaps}
+                  className="w-full rounded-full py-4 bg-black text-white text-sm font-medium hover:bg-neutral-800 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                >
+                  <span>Launch in Google Maps Navigation</span>
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDirectionsModalOpen(false);
+                      if (onRequestRide) onRequestRide(activeWaypoint.name);
+                    }}
+                    className="flex-1 rounded-full py-3 bg-neutral-100 hover:bg-neutral-200 text-black text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-[#E7E5E2]"
+                  >
+                    <Car className="w-3.5 h-3.5" />
+                    <span>Book Ride Instead</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyCoords}
+                    className="rounded-full px-4 py-3 bg-neutral-100 hover:bg-neutral-200 text-black text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer border border-[#E7E5E2]"
+                    title="Copy GPS coordinates"
+                  >
+                    {copiedCoords ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedCoords ? 'Copied' : 'GPS'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

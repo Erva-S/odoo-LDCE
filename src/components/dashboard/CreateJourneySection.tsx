@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Search, Users, IndianRupee, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, Users, IndianRupee, Sparkles, ArrowRight, Check } from 'lucide-react';
 
 interface CreateJourneySectionProps {
   onCreateTrip?: (tripDetails: { destination: string; budget: string; travelers: string; style: string }) => void;
 }
+
+const POPULAR_SUGGESTIONS = ['Goa', 'Ladakh', 'Rajasthan', 'Kerala', 'Mumbai', 'Kyoto'];
 
 export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps) => {
   const [destination, setDestination] = useState('');
@@ -15,17 +17,22 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!destination.trim()) return;
+    const finalDestination = destination.trim() || 'Goa';
 
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setShowSuccess(true);
       if (onCreateTrip) {
-        onCreateTrip({ destination, budget, travelers, style: travelStyle });
+        onCreateTrip({
+          destination: finalDestination,
+          budget,
+          travelers,
+          style: travelStyle,
+        });
       }
-      setTimeout(() => setShowSuccess(false), 4000);
-    }, 1200);
+      setTimeout(() => setShowSuccess(false), 3000);
+    }, 400);
   };
 
   return (
@@ -56,10 +63,28 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
-                  placeholder="Where do you want to go? (e.g. Goa, Mumbai, Delhi...)"
+                  placeholder="Where do you want to go? (e.g. Goa, Ladakh, Rajasthan...)"
                   className="w-full bg-transparent text-[#000000] placeholder:text-neutral-400 font-inter text-base sm:text-lg focus:outline-none"
-                  required
                 />
+              </div>
+
+              {/* Quick suggestion pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+                <span className="text-[11px] font-mono text-[#6F6F6F]">Suggestions:</span>
+                {POPULAR_SUGGESTIONS.map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => setDestination(city)}
+                    className={`text-xs px-3 py-1 rounded-full border transition-all cursor-pointer ${
+                      destination.toLowerCase() === city.toLowerCase()
+                        ? 'bg-black text-white border-black'
+                        : 'bg-white text-[#6F6F6F] border-[#E7E5E2] hover:border-black hover:text-black'
+                    }`}
+                  >
+                    {city}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -67,7 +92,7 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
               {/* Travelers */}
               <div className="bg-white border border-[#E7E5E2] rounded-2xl p-4">
-                <label className="block text-[11px] font-mono text-[#6F6F6F] uppercase mb-1 flex items-center gap-1.5">
+                <label className="text-[11px] font-mono text-[#6F6F6F] uppercase mb-1 flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5" /> Travelers
                 </label>
                 <select
@@ -85,7 +110,7 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
 
               {/* Target Budget */}
               <div className="bg-white border border-[#E7E5E2] rounded-2xl p-4">
-                <label className="block text-[11px] font-mono text-[#6F6F6F] uppercase mb-1 flex items-center gap-1.5">
+                <label className="text-[11px] font-mono text-[#6F6F6F] uppercase mb-1 flex items-center gap-1.5">
                   <IndianRupee className="w-3.5 h-3.5" /> Budget Estimate
                 </label>
                 <select
@@ -102,7 +127,7 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
 
               {/* Travel Style */}
               <div className="bg-white border border-[#E7E5E2] rounded-2xl p-4">
-                <label className="block text-[11px] font-mono text-[#6F6F6F] uppercase mb-1 flex items-center gap-1.5">
+                <label className="text-[11px] font-mono text-[#6F6F6F] uppercase mb-1 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> Travel Style
                 </label>
                 <select
@@ -128,7 +153,7 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
                 {isSubmitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Curating Journey...</span>
+                    <span>Synthesizing Journey...</span>
                   </>
                 ) : (
                   <>
@@ -139,8 +164,9 @@ export const CreateJourneySection = ({ onCreateTrip }: CreateJourneySectionProps
               </button>
 
               {showSuccess && (
-                <div className="mt-4 px-4 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs rounded-full animate-fade-rise">
-                  ✓ Journey created for {destination}! Added to your active archive.
+                <div className="mt-4 px-4 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs rounded-full flex items-center gap-1.5 animate-fade-rise">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Journey synthesized! Loading your customized itinerary workspace...</span>
                 </div>
               )}
             </div>

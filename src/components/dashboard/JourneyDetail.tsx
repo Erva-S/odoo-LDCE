@@ -49,7 +49,66 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
   // Load journey data
   useEffect(() => {
     const list = travelStorage.getJourneys();
-    const found = list.find(j => j.id === journeyId);
+    let found = list.find((j) => j.id === journeyId);
+
+    // If journey isn't found in storage, automatically synthesize it from the destination or haven directory
+    if (!found && journeyId) {
+      const cityName = decodeURIComponent(journeyId).replace(/[-_]/g, ' ');
+      const dest = getOrCreateDestination(cityName);
+      const fallbackJourney: StoredJourney = {
+        id: journeyId,
+        destination: dest.city.toUpperCase(),
+        budget: 54000,
+        travelers: 2,
+        style: dest.styles.join(' · ') || 'Cultural & Scenic',
+        createdAt: new Date().toISOString(),
+        status: 'Planning',
+        destinations: [dest],
+        startDate: '2026-07-15',
+        endDate: '2026-07-22',
+        datesDecided: true,
+        travellersBreakdown: { adults: 2, children: 0 },
+        budgetValue: { amount: 54000, label: '₹54,000' },
+        interests: dest.styles || ['culture', 'nature', 'relaxed'],
+        pace: 'balanced',
+        coverImage: dest.image,
+        itinerary: [
+          {
+            dayNumber: 1,
+            date: 'Day 1',
+            city: dest.city,
+            activities: [
+              `Arrival & check-in at ${dest.city} boutique haven`,
+              `Evening stroll around ${dest.attractions[0] || 'heritage quarter'}`,
+              `Welcome dinner featuring local ${dest.city} cuisine`,
+            ],
+          },
+          {
+            dayNumber: 2,
+            date: 'Day 2',
+            city: dest.city,
+            activities: [
+              `Morning guided visit to ${dest.attractions[1] || 'signature landmarks'}`,
+              `Scenic cultural & artisan craft excursion`,
+              `Sunset viewpoint & relaxation`,
+            ],
+          },
+          {
+            dayNumber: 3,
+            date: 'Day 3',
+            city: dest.city,
+            activities: [
+              `Exploration of ${dest.attractions[2] || 'surrounding natural reserves'}`,
+              `Farewell banquet & travel journal reflection`,
+            ],
+          },
+        ],
+      };
+
+      travelStorage.saveJourney(fallbackJourney);
+      found = fallbackJourney;
+    }
+
     if (found) {
       setJourney(found);
       
@@ -66,18 +125,41 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
       if (found.budgetValue) {
         setEditBudgetLabel(found.budgetValue.label);
       } else {
-        setEditBudgetLabel('I\'ll decide later');
+        setEditBudgetLabel("I'll decide later");
       }
     }
   }, [journeyId]);
 
   if (!journey) {
     return (
-      <div className="min-h-screen bg-warmBg flex flex-col items-center justify-center font-sans">
-        <p className="text-mutedGray text-sm">Journey not found</p>
-        <button onClick={() => onNavigate('/')} className="mt-4 text-xs font-mono underline hover:text-black">
-          Return to Dashboard
-        </button>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center font-sans">
+        <div className="max-w-md w-full space-y-6">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#6F6F6F]">
+            AETHERA GLOBAL ARCHIVE
+          </span>
+          <h2 className="font-instrument text-4xl sm:text-5xl text-black leading-tight">
+            Explore Destinations
+          </h2>
+          <p className="text-sm font-inter text-[#6F6F6F]">
+            This journey is ready to be designed. Shape your upcoming itinerary with our bespoke studio.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => onNavigate('/planner/new')}
+              className="w-full sm:w-auto rounded-full px-8 py-3.5 bg-black text-white text-xs font-mono hover:bg-neutral-800 transition-all cursor-pointer shadow-md"
+            >
+              ✦ Plan a New Journey
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('/')}
+              className="w-full sm:w-auto rounded-full px-6 py-3.5 bg-neutral-100 text-black text-xs font-mono hover:bg-neutral-200 transition-all cursor-pointer"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -404,6 +486,26 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
     onNavigate('/');
   };
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Journey link copied to clipboard!');
+  };
+
+  const handleDuplicate = () => {
+    const dup = travelStorage.duplicateJourney(journey.id);
+    if (dup) {
+      alert('Journey duplicated successfully!');
+      onNavigate(`/journey/${dup.id}`);
+    }
+  };
+
+  const handleDelete = () => {
+    if (confirm(`Are you sure you want to delete "${journey.destination}"?`)) {
+      travelStorage.deleteJourney(journey.id);
+      onNavigate('/');
+    }
+  };
+
   const travelStylesList = [
     { value: 'relaxed', label: 'Relaxed' },
     { value: 'adventure', label: 'Adventure' },
@@ -418,21 +520,44 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
     { value: 'heritage', label: 'Heritage' }
   ];
 
-
-
   return (
     <div className="w-full min-h-screen bg-[#FFFFFF] text-black font-sans selection:bg-black selection:text-white pb-32">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-8 pb-5 flex items-center justify-between border-b border-subtleBorder">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-8 pb-5 flex flex-wrap items-center justify-between gap-4 border-b border-subtleBorder">
         <button
           onClick={() => onNavigate('/')}
-          className="flex items-center gap-2 text-xs font-mono text-mutedGray hover:text-black transition-colors"
+          className="flex items-center gap-2 text-xs font-mono text-mutedGray hover:text-black transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>DASHBOARD</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+          >
+            <span>Share</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDuplicate}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+          >
+            <span>Duplicate</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-200 text-red-700 hover:bg-red-50 text-xs font-mono transition-all cursor-pointer"
+          >
+            <Trash2 className="w-3 h-3" />
+            <span>Delete</span>
+          </button>
+
           <button
             onClick={() => onNavigate(`/journey/${journeyId}/calendar`)}
             className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
@@ -443,18 +568,18 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
 
           <button
             onClick={() => setIsEditingParams(!isEditingParams)}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4.5 py-2 rounded-full border border-subtleBorder hover:border-black text-xs font-mono transition-all cursor-pointer"
           >
             <Edit3 className="w-3.5 h-3.5" />
-            <span>{isEditingParams ? 'Close Editor' : 'Edit Journey'}</span>
+            <span>{isEditingParams ? 'Close Editor' : 'Edit'}</span>
           </button>
           
           <button
             onClick={handleSaveJourney}
-            className="flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-black text-white hover:opacity-90 text-xs font-medium shadow-md shadow-black/5 hover:scale-[1.02] transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-6 py-2 rounded-full bg-black text-white hover:opacity-90 text-xs font-medium shadow-md shadow-black/5 hover:scale-[1.02] transition-all cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>Save Journey</span>
+            <span>Save</span>
           </button>
         </div>
       </div>
@@ -767,6 +892,74 @@ export const JourneyDetail = ({ journeyId, onNavigate }: JourneyDetailProps) => 
             );
           })}
         </div>
+      </section>
+
+      {/* TRANSPORTATION & MOBILITY PASSES */}
+      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-8 animate-fade-rise">
+        <div className="flex items-center justify-between mb-6">
+          <span className="font-mono text-xs uppercase tracking-widest text-mutedGray">
+            TRANSPORTATION & TRANSIT PASSES
+          </span>
+          <button
+            type="button"
+            onClick={() => onNavigate('/')}
+            className="text-xs font-mono text-black hover:underline cursor-pointer"
+          >
+            + Book Bike / Flight →
+          </button>
+        </div>
+
+        {journey.transportation && journey.transportation.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {journey.transportation.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white border border-subtleBorder hover:border-black rounded-2xl p-6 transition-all shadow-xs"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">
+                      {item.type === 'bike' ? '🏍️' : '✈️'}
+                    </span>
+                    <div>
+                      <h4 className="font-instrument text-2xl text-black leading-none">
+                        {item.title}
+                      </h4>
+                      <span className="text-xs text-mutedGray font-mono">{item.subtitle}</span>
+                    </div>
+                  </div>
+                  <span className="font-instrument text-2xl text-black">{item.cost}</span>
+                </div>
+
+                <div className="p-3 bg-[#FAF8F5] rounded-xl text-xs font-mono space-y-1 text-neutral-700 mb-2">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">ROUTE:</span>
+                    <span className="font-semibold">{item.route}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">DATES:</span>
+                    <span>{item.dates}</span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-mutedGray font-inter">{item.details}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="border border-dashed border-subtleBorder rounded-2xl p-8 text-center bg-warmBg/40">
+            <p className="text-sm font-inter text-mutedGray mb-3">
+              No flights or bike rentals booked for this journey yet.
+            </p>
+            <button
+              type="button"
+              onClick={() => onNavigate('/')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-full text-xs font-mono hover:bg-neutral-800 transition-all cursor-pointer"
+            >
+              <span>Explore Transportation Options</span>
+            </button>
+          </div>
+        )}
       </section>
 
       {/* DAY-BY-DAY ITINERARY SECTIONS */}

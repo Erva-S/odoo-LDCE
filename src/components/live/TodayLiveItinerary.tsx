@@ -177,10 +177,16 @@ export const TodayLiveItinerary = ({ onNavigate, onGetRide }: TodayLiveItinerary
 
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate(item.title)}
-                  className="flex items-center gap-1.5 rounded-full px-6 py-2.5 bg-[#000000] hover:bg-neutral-800 text-white text-xs font-medium transition-all hover:scale-[1.02] cursor-pointer"
+                  onClick={() => {
+                    if (onNavigate) {
+                      onNavigate(item.title);
+                    }
+                    const query = encodeURIComponent(`${item.location}, Goa, India`);
+                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+                  }}
+                  className="flex items-center gap-1.5 rounded-full px-6 py-2.5 bg-[#000000] hover:bg-neutral-800 text-white text-xs font-medium transition-all hover:scale-[1.02] cursor-pointer shadow-xs"
                 >
-                  <Navigation className="w-3.5 h-3.5" />
+                  <Navigation className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Navigate</span>
                 </button>
               </div>

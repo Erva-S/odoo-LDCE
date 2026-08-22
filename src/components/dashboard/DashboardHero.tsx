@@ -4,9 +4,10 @@ import { ArrowUpRight, Plus } from 'lucide-react';
 interface DashboardHeroProps {
   onPlanNew: () => void;
   onExplore: () => void;
+  onOpenTrain?: () => void;
 }
 
-export const DashboardHero = ({ onPlanNew, onExplore }: DashboardHeroProps) => {
+export const DashboardHero = ({ onPlanNew, onExplore, onOpenTrain }: DashboardHeroProps) => {
   // Key state to reset and trigger exactly one train journey animation on every mouse enter
   const [trainKey, setTrainKey] = useState<number | null>(null);
 
@@ -21,12 +22,24 @@ export const DashboardHero = ({ onPlanNew, onExplore }: DashboardHeroProps) => {
   return (
     <section id="hero" className="relative z-10 w-full pt-8 sm:pt-14 pb-16 sm:pb-20 text-center px-6">
       <div className="max-w-5xl mx-auto flex flex-col items-center">
-        {/* Subtle greeting tag */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100/90 text-xs text-[#6F6F6F] font-inter mb-6 animate-fade-rise">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Good morning, Aravind</span>
-          <span className="text-neutral-300">•</span>
-          <span>Your next journey awaits</span>
+        {/* Subtle greeting tag + Train Experience Pill */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-6 animate-fade-rise">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100/90 text-xs text-[#6F6F6F] font-inter">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Good morning, Aravind</span>
+            <span className="text-neutral-300">•</span>
+            <span>Your next journey awaits</span>
+          </div>
+
+          {onOpenTrain && (
+            <button
+              type="button"
+              onClick={onOpenTrain}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black text-white text-xs font-mono hover:bg-neutral-800 transition-all hover:scale-105 cursor-pointer shadow-xs"
+            >
+              <span>✦ Lumora Scenic Train Window</span>
+            </button>
+          )}
         </div>
 
         {/* Headline */}
@@ -90,7 +103,7 @@ export const DashboardHero = ({ onPlanNew, onExplore }: DashboardHeroProps) => {
             )}
 
             {/* Stable Content Layer */}
-            <span className="relative z-[3] flex items-center justify-center gap-2 pointer-events-none">
+            <span className="relative z-[3] flex items-center justify-center gap-2">
               <Plus className="w-4 h-4 text-white" />
               <span>Plan a New Journey</span>
             </span>

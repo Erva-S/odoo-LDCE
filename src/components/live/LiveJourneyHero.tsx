@@ -87,7 +87,19 @@ export const LiveJourneyHero = ({ onOpenMap, onOpenAI }: LiveJourneyHeroProps) =
           </div>
         </div>
 
-        <div className="flex items-center gap-3 self-start md:self-auto">
+        <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+          <button
+            type="button"
+            onClick={() => {
+              const query = encodeURIComponent('Fort Aguada, Candolim, Goa, India');
+              window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+            }}
+            className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-medium transition-all hover:scale-[1.02] cursor-pointer shadow-xs"
+          >
+            <Navigation className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Get Directions</span>
+          </button>
+
           <button
             type="button"
             onClick={onOpenMap}
